@@ -1,0 +1,706 @@
+{% comment %}
+  Renders a megamenu for the header.
+
+  Usage:
+  {% render 'header-mega-menu' %}
+{% endcomment %}
+{% comment %} 
+<nav class="header__inline-menu">
+  <ul class="list-menu list-menu--inline" role="list">
+    {%- for link in section.settings.menu.links -%}
+      <li>
+        {%- if link.links != blank -%}
+          <header-menu>
+            <details id="Details-HeaderMenu-{{ forloop.index }}" class="mega-menu">
+              <summary
+                id="HeaderMenu-{{ link.handle }}"
+                class="header__menu-item list-menu__item link focus-inset"
+              >
+                <span
+                  {%- if link.child_active %}
+                    class="header__active-menu-item"
+                  {% endif %}
+                >
+                  {{- link.title | escape -}}
+                </span>
+                {{- 'icon-caret.svg' | inline_asset_content -}}
+              </summary>
+              <div
+                id="MegaMenu-Content-{{ forloop.index }}"
+                class="mega-menu__content color-{{ section.settings.menu_color_scheme }} gradient motion-reduce global-settings-popup"
+                tabindex="-1"
+              >
+                <ul
+                  class="mega-menu__list page-width{% if link.levels == 1 %} mega-menu__list--condensed{% endif %}"
+                  role="list"
+                >
+                  {%- for childlink in link.links -%}
+                    <li>
+                      <a
+                        id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                        href="{{ childlink.url }}"
+                        class="mega-menu__link mega-menu__link--level-2 link{% if childlink.current %} mega-menu__link--active{% endif %}"
+                        {% if childlink.current %}
+                          aria-current="page"
+                        {% endif %}
+                      >
+                        {{ childlink.title | escape }}
+                      </a>
+                      {%- if childlink.links != blank -%}
+                        <ul class="list-unstyled" role="list">
+                          {%- for grandchildlink in childlink.links -%}
+                            <li>
+                              <a
+                                id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                href="{{ grandchildlink.url }}"
+                                class="mega-menu__link link{% if grandchildlink.current %} mega-menu__link--active{% endif %}"
+                                {% if grandchildlink.current %}
+                                  aria-current="page"
+                                {% endif %}
+                              >
+                                {{ grandchildlink.title | escape }}
+                              </a>
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </details>
+          </header-menu>
+        {%- else -%}
+          <a
+            id="HeaderMenu-{{ link.handle }}"
+            href="{{ link.url }}"
+            class="header__menu-item list-menu__item link link--text focus-inset"
+            {% if link.current %}
+              aria-current="page"
+            {% endif %}
+          >
+            <span
+              {%- if link.current %}
+                class="header__active-menu-item"
+              {% endif %}
+            >
+              {{- link.title | escape -}}
+            </span>
+          </a>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+</nav> {% endcomment %}
+
+
+{% comment %}
+  Renders a megamenu for the header.
+
+  Usage:
+  {% render 'header-mega-menu' %}
+{% endcomment %}
+
+<nav class="header__inline-menu">
+  {% comment %} <style>
+/* Show hamburger only on desktop */
+.desktop-hamburger-btn {
+  display: none;
+}
+
+@media (min-width: 990px) {
+  .desktop-hamburger-btn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .desktop-hamburger-btn span {
+    display: block;
+    width: 28px;
+    border-radius: 10px;
+    height: 3px;
+    background: #000;
+    transition: 0.3s ease;
+  }
+}
+
+/* Drawer styles */
+.desktop-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: -350px; /* Hidden position */
+  width: 350px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  transition: left 0.4s ease;
+  z-index: 999999;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.desktop-menu-drawer.open {
+  left: 0;
+}
+
+/* Close button */
+.drawer-close-btn {
+  font-size: 26px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 20px;
+  display: block;
+  text-align:end;
+}
+
+/* Overlay */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 999998;
+}
+
+.drawer-overlay.active {
+  display: block;
+}
+@media (max-width: 768px) {
+    .desktop-hamburger-wrapper{
+        display:none;
+    }
+}
+</style>
+
+<div class="desktop-hamburger-wrapper">
+  <!-- Hamburger icon -->
+  <div class="desktop-hamburger-btn" id="hamburgerDesktop">
+      <span></span>
+      <span></span>
+      <span></span>
+  </div>
+
+  <!-- Drawer -->
+  <div class="desktop-menu-drawer" id="desktopDrawer">
+    <span class="drawer-close-btn" id="drawerClose">×</span>
+
+    <!-- YOUR FULL MENU INSERTED HERE -->
+    <ul style="list-style:none; padding-left:0;">
+      <li>
+        <header-menu>
+          <details id="Details-HeaderMenu-5" open>
+            <summary id="HeaderMenu-info" class="header__menu-item list-menu__item link focus-inset" role="button" aria-expanded="false" aria-controls="HeaderMenu-MenuList-5">
+              <span>Info</span>
+              {% comment %} <svg class="icon icon-caret" viewBox="0 0 10 6"><path fill="currentColor" fill-rule="evenodd" d="M9.354.646a.5.5 0 0 0-.708 0L5 4.293 1.354.646a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l4-4a.5.5 0 0 0 0-.708" clip-rule="evenodd"></path></svg> {% endcomment %}
+            </summary>
+
+            <ul id="HeaderMenu-MenuList-5" class="header__submenu list-menu list-menu--disclosure color-scheme-1 gradient caption-large" style="border:0">
+              
+              <li><a href="/pages/about-us" class="header__menu-item list-menu__item link link--text">Om oss</a></li>
+
+              <li>
+                <details id="Details-HeaderSubMenu-info-kundeservice">
+                  <summary class="header__menu-item list-menu__item link link--text">
+                    <span>Kundeservice</span>
+                    <svg class="icon icon-caret" viewBox="0 0 10 6"><path fill="currentColor" d="M9.354.646a.5.5 0 0 0-.708 0L5 4.293 1.354.646a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l4-4a.5.5 0 0 0 0-.708"></path></svg>
+                  </summary>
+
+                  <ul class="header__submenu list-menu">
+                    <li><a href="/pages/pakkesporing" class="header__menu-item list-menu__item link">Pakkesporing</a></li>
+                    <li><a href="/pages/retursenter" class="header__menu-item list-menu__item link">Returportal</a></li>
+                    <li><a href="/pages/firma-og-persongaver-fra-flekkfritt" class="header__menu-item list-menu__item link">Gaver fra Flekkfritt</a></li>
+                    <li><a href="/pages/betaling" class="header__menu-item list-menu__item link">Betaling</a></li>
+                    <li><a href="/pages/sporsmal-til-min-ordre" class="header__menu-item list-menu__item link">Spørsmål om ordren min</a></li>
+                    <li><a href="/pages/det-tekniske" class="header__menu-item list-menu__item link">Det tekniske</a></li>
+                    <li><a href="/pages/e-post-og-nyhetsbrev" class="header__menu-item list-menu__item link">E-post og nyhetsbrev</a></li>
+                  </ul>
+                </details>
+              </li>
+
+              <li><a href="/pages/bruksvilkar" class="header__menu-item list-menu__item link">Bruksvilkår</a></li>
+              <li><a href="/pages/30-dagers-apent-kjop-flekkfritt-fornoydgaranti" class="header__menu-item list-menu__item link">30 dagers åpent kjøp</a></li>
+              <li><a href="/pages/forbrukertilsynet" class="header__menu-item list-menu__item link">Forbrukertilsynet</a></li>
+              <li><a href="/pages/ofte-stilte-sporsmal-faq" class="header__menu-item list-menu__item link">Ofte stilte spørsmål</a></li>
+              <li><a href="/pages/contact" class="header__menu-item list-menu__item link">Kontakt oss</a></li>
+              <li><a href="/blogs/news" class="header__menu-item list-menu__item link">Nyheter</a></li>
+
+            </ul>
+          </details>
+        </header-menu>
+      </li>
+    </ul>
+    <!-- END MENU BLOCK -->
+
+  </div>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+</div>
+
+<script>
+document.getElementById("hamburgerDesktop").addEventListener("click", function() {
+  document.getElementById("desktopDrawer").classList.add("open");
+  document.getElementById("drawerOverlay").classList.add("active");
+});
+
+document.getElementById("drawerClose").addEventListener("click", function() {
+  document.getElementById("desktopDrawer").classList.remove("open");
+  document.getElementById("drawerOverlay").classList.remove("active");
+});
+
+document.getElementById("drawerOverlay").addEventListener("click", function() {
+  document.getElementById("desktopDrawer").classList.remove("open");
+  this.classList.remove("active");
+});
+</script> {% endcomment %}
+<style>
+/* ===============================
+   DESKTOP HAMBURGER
+================================ */
+
+.desktop-hamburger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: 'Barlow Condensed';
+  font-size: 18px;
+  font-weight: 600;
+  color: #00514E;
+}
+
+.desktop-hamburger span:first-child {
+  font-size: 26px;
+  line-height: 1;
+}
+
+/* Hide on mobile */
+@media (max-width: 1024px) {
+  .desktop-hamburger {
+    display: none;
+  }
+}
+
+/* ===============================
+   MEGA MENU TOGGLE
+================================ */
+
+#MegaMenu-Content-5 {
+  max-width: 1280px;
+  margin: auto;
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  padding: 0 40px;
+  position: absolute;
+  top: 64px;
+  z-index: 50;
+
+  /* Hidden by default */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+#MegaMenu-Content-5.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ===============================
+   MEGA MENU LAYOUT
+================================ */
+
+.mega-menu-v2 {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 30px;
+  padding: 30px 40px;
+}
+
+/* LEFT */
+.mega-menu-v2__heading {
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 12px;
+  font-family: 'Barlow Condensed';
+  color: #00514E;
+  margin-top: 0;
+}
+
+.mega-menu-v2__links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mega-menu-v2__links li {
+  margin-bottom: 8px;
+}
+
+.mega-menu-v2__links li a {
+  font-family: 'Barlow Condensed';
+  font-size: 16px;
+  color: #4D4D4D;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* RIGHT SLIDER */
+.mega-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.mega-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card */
+.mega-v2-card {
+  flex: 0 0 48%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.mega-v2-card a {
+  text-decoration: none;
+}
+
+/* Image */
+.mega-v2-card__image img {
+  width: 100%;
+  height: auto;
+}
+
+/* Content */
+{% comment %} .mega-v2-card__content {
+  padding: 20px 0;
+} {% endcomment %}
+
+.mega-v2-card__content h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-family: 'Barlow Condensed';
+  font-weight: 600;
+  color: #00514E;
+}
+
+.mega-v2-card__content p {
+  font-size: 16px;
+  color: #4D4D4D;
+  font-family: 'Barlow Condensed';
+  margin: 0 0 8px;
+}
+
+.mega-v2-link {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Barlow Condensed';
+  color: #000;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .mega-menu-v2 {
+    grid-template-columns: 1fr;
+  }
+
+  #MegaMenu-Content-5 {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+div#MegaMenu-Content-5 {
+    max-width: 1280px;
+    background: #fff;
+}
+.mega-menu-v2__links {
+    text-align: justify;
+}
+.mega-v2-card__content {
+    text-align: justify;
+    padding: 0;
+}
+</style>
+
+<!-- ===============================
+     DESKTOP HAMBURGER BUTTON
+================================ -->
+<div class="desktop-hamburger" id="desktopHamburger">
+  <span>☰</span>
+</div>
+
+
+<!-- ===============================
+     MEGA MENU CONTENT
+================================ -->
+<div id="MegaMenu-Content-5">
+  <div class="mega-menu-v2">
+
+    <!-- LEFT -->
+    <div class="mega-menu-v2__links">
+      <p class="mega-menu-v2__heading">Mere information</p>
+      <ul>
+        <li><a href="/pages/om-os">Om os &nbsp;&nbsp;&nbsp;&nbsp; →</a></li>
+        <li><a href="/pages/kundeservice">Kundeservice &nbsp;&nbsp;&nbsp;&nbsp; →</a></li>
+        <li><a href="/pages/vilkar">Vilkår & fordele &nbsp;&nbsp;&nbsp;&nbsp; →</a></li>
+        <li><a href="/pages/30-dages-retur">30 dages retur &nbsp;&nbsp;&nbsp;&nbsp; →</a></li>
+        <li><a href="/pages/kontakt">Kontakt os &nbsp;&nbsp;&nbsp;&nbsp; →</a></li>
+      </ul>
+    </div>
+
+    <!-- RIGHT -->
+    <ul class="mega-slider">
+      <li class="mega-v2-card">
+        <a href="#">
+          <div class="mega-v2-card__image">
+            <img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Rectangle_2.png?v=1768200098" alt="">
+          </div>
+          <div class="mega-v2-card__content">
+            <h4>Vores #1 bestseller</h4>
+            <p>Oplev de bedste Flekkfritt-produkter og mærker.</p>
+            <span class="mega-v2-link">Få din nu →</span>
+          </div>
+        </a>
+      </li>
+
+      <li class="mega-v2-card">
+        <a href="#">
+          <div class="mega-v2-card__image">
+            <img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Rectangle_3.png?v=1768200108" alt="">
+          </div>
+          <div class="mega-v2-card__content">
+            <h4>Flekkfritt Samling</h4>
+            <p>Oplev de bedste Flekkfritt-kollektioner.</p>
+            <span class="mega-v2-link">Få din nu →</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  const hamburger = document.getElementById('desktopHamburger');
+  const megaMenu = document.getElementById('MegaMenu-Content-');
+
+  if (!hamburger || !megaMenu) return;
+
+  hamburger.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    megaMenu.classList.toggle('is-open');
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!megaMenu.contains(e.target) && !hamburger.contains(e.target)) {
+      megaMenu.classList.remove('is-open');
+    }
+  });
+})();
+</script>
+<script>
+(function () {
+  const HAMBURGER_ID = 'desktopHamburger';
+  const MEGA_MENU_ID = 'MegaMenu-Content-5';
+
+  function init() {
+    const hamburger = document.getElementById(HAMBURGER_ID);
+    const megaMenu = document.getElementById(MEGA_MENU_ID);
+
+    if (!hamburger || !megaMenu) return;
+
+    const icon = hamburger.querySelector('span');
+
+    function openMenu() {
+      megaMenu.classList.add('is-open');
+      icon.textContent = '✕';
+    }
+
+    function closeMenu() {
+      megaMenu.classList.remove('is-open');
+      icon.textContent = '☰';
+    }
+
+    function toggleMenu(e) {
+      e.preventDefault();
+      e.stopImmediatePropagation(); // 🔑 CRITICAL
+      e.stopPropagation();
+
+      if (megaMenu.classList.contains('is-open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    /* Remove any existing handler to avoid duplicates */
+    hamburger.onclick = null;
+
+    /* Attach click in CAPTURE phase (before Shopify) */
+    hamburger.addEventListener('click', toggleMenu, true);
+
+    /* Outside click */
+    document.addEventListener(
+      'click',
+      function (e) {
+        if (
+          megaMenu.classList.contains('is-open') &&
+          !megaMenu.contains(e.target) &&
+          !hamburger.contains(e.target)
+        ) {
+          closeMenu();
+        }
+      },
+      true
+    );
+  }
+
+  /* Init once DOM is ready */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+  <ul class="list-menu list-menu--inline custom-2" role="list">
+    {%- for link in section.settings.menu.links -%}
+      <li>
+        {%- if link.links != blank -%}
+          <header-menu>
+            <details id="Details-HeaderMenu-{{ forloop.index }}" class="mega-menu">
+              <summary
+                id="HeaderMenu-{{ link.handle }}"
+                class="header__menu-item list-menu__item link focus-inset"
+              >
+                <span
+                  {%- if link.child_active %}
+                    class="header__active-menu-item"
+                  {% endif %}
+                >
+                  {{- link.title | escape -}}
+                </span>
+                {{- 'icon-caret.svg' | inline_asset_content -}}
+              </summary>
+              <div
+                id="MegaMenu-Content-{{ forloop.index }}"
+                class="mega-menu__content color-{{ section.settings.menu_color_scheme }} gradient motion-reduce global-settings-popup"
+                tabindex="-1"
+              >
+                {% assign menu_title = link.title | downcase %}
+
+                {% case menu_title %}
+                  {% when 'velg kategori' %}
+                    {% render 'mega-menu-kategori', link: link %}
+
+                  {% when 'velg flekkfritt' %}
+                    {% render 'mega-menu-flekkfritt', link: link %}
+
+                  {% when 'velg brand' %}
+                    {% render 'mega-menu-brand', link: link %}
+
+                  {% else %}
+                    {% comment %} {% render 'mega-menu-default', link: link %} {% endcomment %}
+                     123456
+                {% endcase %}
+
+
+                {% comment %} <ul
+                  class="mega-menu__list page-width{% if link.levels == 1 %} mega-menu__list--condensed{% endif %}"
+                  role="list"
+                >
+                  {%- for childlink in link.links -%}
+                    {% assign linked_collection = childlink.object %}
+                    <li>
+                      <a
+                        id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                        href="{{ childlink.url }}"
+                        class="nabeel mega-menu__link mega-menu__link--level-2 link{% if childlink.current %} mega-menu__link--active{% endif %}"
+                        {% if childlink.current %}
+                          aria-current="page"
+                        {% endif %}
+                      >
+                        {% if linked_collection and linked_collection.image %}
+                          <span class="mega-menu__image">
+                            <img
+                              src="{{ linked_collection.image | image_url: width: 300 }}"
+                              alt="{{ linked_collection.title | escape }}"
+                              loading="lazy"
+                            >
+                          </span>
+                        {% endif %}
+                        
+                        <span class="mega-menu__title">
+                          {{ childlink.title | escape }}
+                        </span>
+                        {% comment %} {{ childlink.title | escape }} {% endcomment %}
+                      </a>
+                      {%- if childlink.links != blank -%}
+                        <ul class="list-unstyled" role="list">
+                          {%- for grandchildlink in childlink.links -%}
+                            <li>
+                              <a
+                                id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                href="{{ grandchildlink.url }}"
+                                class="mega-menu__link link{% if grandchildlink.current %} mega-menu__link--active{% endif %}"
+                                {% if grandchildlink.current %}
+                                  aria-current="page"
+                                {% endif %}
+                              >
+                                {{ grandchildlink.title | escape }}
+                              </a>
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul> {% endcomment %}
+              </div>
+            </details>
+          </header-menu>
+        {%- else -%}
+          <a
+            id="HeaderMenu-{{ link.handle }}"
+            href="{{ link.url }}"
+            class="header__menu-item list-menu__item link link--text focus-inset"
+            {% if link.current %}
+              aria-current="page"
+            {% endif %}
+          >
+            <span
+              {%- if link.current %}
+                class="header__active-menu-item"
+              {% endif %}
+            >
+              {{- link.title | escape -}}
+            </span>
+          </a>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+</nav>

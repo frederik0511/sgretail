@@ -1,0 +1,830 @@
+{% comment %} {%- unless product.has_only_default_variant -%}
+  <variant-selects
+    id="variant-selects-{{ section.id }}"
+    data-section="{{ section.id }}"
+    {{ block.shopify_attributes }}
+  >
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        assign picker_type = block.settings.picker_type
+
+        if swatch_count > 0 and block.settings.swatch_shape != 'none'
+          if block.settings.picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          else
+            assign picker_type = 'swatch'
+          endif
+        endif
+      -%}
+
+      {%- if picker_type == 'swatch' or picker_type == 'button' -%}
+   <style>
+ .variant-image-wrapper {
+    display: inline-block;
+    margin: 5px;
+    border-radius: 60px;
+    opacity: 0.8; /* dull by default */
+    transition: opacity 0.3s ease, border-color 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .variant-image-wrapper img {
+    max-width: 50px;
+    border-radius: 60px;
+    display: block;
+  }
+
+  .variant-image-wrapper:hover {
+    opacity: 1;
+  }
+
+  .variant-image-wrapper.active {
+    opacity: 1;
+    border-color: #000;
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const variantSelectors = document.querySelectorAll('.variant-image-wrapper');
+    const variantSelect = document.querySelector('form[action^="/cart/add"] [name="id"]');
+
+    function setActiveSwatch(variantId) {
+      variantSelectors.forEach(el => {
+        el.classList.toggle('active', el.dataset.variantId === variantId);
+      });
+    }
+
+    variantSelectors.forEach(swatch => {
+      swatch.addEventListener('click', function () {
+        const selectedVariantId = this.dataset.variantId;
+
+        // Update Shopify hidden input
+        if (variantSelect) {
+          variantSelect.value = selectedVariantId;
+          variantSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        // Visually highlight the selected swatch
+        setActiveSwatch(selectedVariantId);
+      });
+    });
+
+    // Set initial active state
+    if (variantSelect) {
+      setActiveSwatch(variantSelect.value);
+    }
+  });
+</script>
+
+<label class="form__label">Choose Variant:</label>
+<div class="variant-images-container">
+  {% for variant in product.variants %}
+    {% if variant.image %}
+      <div
+        class="variant-image-wrapper"
+        data-variant-id="{{ variant.id }}"
+        title="{{ variant.title }}"
+      >
+        <img
+          src="{{ variant.image.src | img_url: '100x' }}"
+          alt="{{ variant.title }}"
+          loading="lazy"
+        />
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const variantSelectors = document.querySelectorAll('.variant-image-wrapper');
+    const variantSelect = document.querySelector('form[action^="/cart/add"] [name="id"]');
+
+    function setActiveSwatch(variantId) {
+      variantSelectors.forEach(el => {
+        el.classList.toggle('active', el.dataset.variantId === variantId);
+      });
+    }
+
+    variantSelectors.forEach(swatch => {
+      swatch.addEventListener('click', function () {
+        const selectedVariantId = this.dataset.variantId;
+
+        // Update Shopify hidden input
+        if (variantSelect) {
+          variantSelect.value = selectedVariantId;
+          variantSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        // Visually highlight the selected swatch
+        setActiveSwatch(selectedVariantId);
+      });
+    });
+
+    // Set initial active state
+    if (variantSelect) {
+      setActiveSwatch(variantSelect.value);
+    }
+  });
+</script>
+
+        
+<!-- <div class="bundle-options">
+  <p class="bundle-title">Choose your bundle</p>
+  <div class="bundle-buttons">
+    <div class="bundle-1">
+      <span class="popular">Popular</span>
+    <button class="bundle-btn first" data-qty="2">
+      2 pieces<br>
+DKK 2.04/wash</button>
+    </div>
+    <button class="bundle-btn" data-qty="3">3 pieces<br>
+DKK 2.17/wash</button>
+    <button class="bundle-btn" data-qty="4">4 pieces<br>
+DKK 2.17/wash</button>
+    <button class="bundle-btn" data-qty="5">5 pieces<br>
+DKK 2.17/wash</button>
+  </div>
+        
+</div> -->
+<script>
+  document.querySelectorAll('.bundle-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const qty = parseInt(this.dataset.qty);
+
+      // Update the quantity input field
+      const qtyInput = document.querySelector('.product__quantity-input');
+      if (qtyInput) {
+        qtyInput.value = qty;
+
+        // Optionally trigger change event if your theme listens to it
+        qtyInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      // Optional: highlight the selected button
+      document.querySelectorAll('.bundle-btn').forEach(btn => btn.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+</script>
+<style>
+.bundle-btn.selected {
+    border: 3px solid #00514e;
+    background-color: transparent;
+    color: #000;
+}
+</style>
+
+
+      {%- else -%}
+        <div class="product-form__input product-form__input--dropdown">
+          <label class="form__label">
+            <!-- Removed option name text -->
+          </label>
+          <div class="select">
+            {%- if picker_type == 'swatch_dropdown' -%}
+              <span data-selected-value class="dropdown-swatch">
+                {% render 'swatch', swatch: option.selected_value.swatch, shape: block.settings.swatch_shape %}
+              </span>
+            {%- endif -%}
+            <select
+              id="Option-{{ section.id }}-{{ forloop.index0 }}"
+              class="select__select"
+              name="options[{{ option.name | escape }}]"
+              form="{{ product_form_id }}"
+            >
+              {% render 'product-variant-options',
+                product: product,
+                option: option,
+                block: block,
+                picker_type: picker_type
+              %}
+            </select>
+            <span class="svg-wrapper">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    <script type="application/json" data-selected-variant>
+      {{ product.selected_or_first_available_variant | json }}
+
+      
+    </script>
+    <script>
+      document.querySelectorAll('.variant-image-wrapper').forEach(wrapper => {
+  wrapper.addEventListener('click', () => {
+    // Remove 'selected' class from all
+    document.querySelectorAll('.variant-image-wrapper.selected').forEach(el => el.classList.remove('selected'));
+    
+    // Add 'selected' to clicked wrapper
+    wrapper.classList.add('selected');
+    
+    // Get variant id from clicked wrapper
+    const variantId = wrapper.getAttribute('data-variant-id');
+    
+    // Update the variant select or form input accordingly (adjust selector as per your theme)
+    const variantSelect = document.querySelector('select[name="id"]');
+    if (variantSelect) {
+      variantSelect.value = variantId;
+      variantSelect.dispatchEvent(new Event('change'));
+    }
+  });
+});
+
+    </script>
+  </variant-selects>
+{%- endunless -%} {% endcomment %}
+
+
+
+
+{% comment %} 
+{%- unless product.has_only_default_variant -%}
+  <variant-selects
+    id="variant-selects-{{ section.id }}"
+    data-section="{{ section.id }}"
+    {{ block.shopify_attributes }}
+  >
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        assign picker_type = block.settings.picker_type
+
+        if swatch_count > 0 and block.settings.swatch_shape != 'none'
+          if block.settings.picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          else
+            assign picker_type = 'swatch'
+          endif
+        endif
+      -%}
+
+      {%- if picker_type == 'swatch' or picker_type == 'button' -%}
+        <style>
+          .variant-image-wrapper {
+            display: inline-block;
+            margin: 5px;
+            border-radius: 60px;
+            opacity: 0.8;
+            transition: opacity 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            vertical-align: middle;
+            padding: 3px;
+          }
+          .variant-image-wrapper img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 60px;
+            display: block;
+          }
+          .variant-image-wrapper:hover { opacity: 1; transform: translateY(-2px); }
+          .variant-image-wrapper.active, .variant-image-wrapper.selected {
+            opacity: 1;
+            border-color: #000;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+          }
+
+          .variant-images-container { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+        </style>
+
+        <label class="form__label">Velg variant:</label>
+        <div class="variant-images-container">
+          {% for variant in product.variants %}
+            {% if variant.image %}
+              <div
+                class="variant-image-wrapper"
+                data-variant-id="{{ variant.id }}"
+                data-image-id="{{ variant.image.id }}"
+                title="{{ variant.title | escape }}"
+                role="button"
+                tabindex="0"
+              >
+                <img
+                  src="{{ variant.image.src | img_url: '100x' }}"
+                  srcset="{{ variant.image.src | img_url: '200x' }} 2x"
+                  alt="{{ variant.title | escape }}"
+                  loading="lazy"
+                />
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {%- else -%}
+        <div class="product-form__input product-form__input--dropdown">
+          <label class="form__label"></label>
+          <div class="select">
+            {%- if picker_type == 'swatch_dropdown' -%}
+              <span data-selected-value class="dropdown-swatch">
+                {% render 'swatch', swatch: option.selected_value.swatch, shape: block.settings.swatch_shape %}
+              </span>
+            {%- endif -%}
+            <select
+              id="Option-{{ section.id }}-{{ forloop.index0 }}"
+              class="select__select"
+              name="options[{{ option.name | escape }}]"
+              form="{{ product_form_id }}"
+            >
+              {% render 'product-variant-options',
+                product: product,
+                option: option,
+                block: block,
+                picker_type: picker_type
+              %}
+            </select>
+            <span class="svg-wrapper">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    <!-- Product variants JSON so JS can read image srcs and IDs -->
+    <script type="application/json" id="product-variants-json-{{ section.id }}">
+      {{ product.variants | json }}
+    </script>
+
+    <script>
+      (function () {
+        document.addEventListener('DOMContentLoaded', function () {
+          // Grab variant JSON from Liquid output
+          let variantsJson = [];
+          try {
+            variantsJson = JSON.parse(document.getElementById('product-variants-json-{{ section.id }}').textContent || '[]');
+          } catch (e) {
+            console.warn('Could not parse product variants JSON', e);
+          }
+
+          // Helpers to find main image element(s) used by theme
+          function getMainImageElements() {
+            const selectors = [
+              '.product__media img',           // common in Dawn-like
+              '.product__main-image img',
+              '.product-media img',
+              '.product-single__photo img',
+              '#ProductPhotoImg',
+              '[data-product-main-image] img',
+              '.featured-media img',
+              '.product-gallery__image img'
+            ];
+            const elements = [];
+            selectors.forEach(sel => {
+              document.querySelectorAll(sel).forEach(el => elements.push(el));
+            });
+            // fallback: first image inside product form area
+            if (!elements.length) {
+              const fallback = document.querySelector('form[action^="/cart/add"] img');
+              if (fallback) elements.push(fallback);
+            }
+            return elements;
+          }
+
+          // Try to update gallery thumbnails (if theme has thumbnails with data-image-id) and main image(s)
+          function updateImagesForVariant(variantId) {
+            const variant = variantsJson.find(v => String(v.id) === String(variantId));
+            if (!variant) return;
+
+            // Try to detect image src in several possible keys
+            let imgObj = variant.featured_image || variant.image || variant.image || null;
+            // some themes output image as 'featured_media' or nested objects; attempt to find src by scanning keys
+            if (!imgObj) {
+              Object.keys(variant).forEach(k => {
+                if (!imgObj && variant[k] && typeof variant[k] === 'object') {
+                  if (variant[k].src) imgObj = variant[k];
+                }
+              });
+            }
+
+            // If still not found, try to derive src from variant's 'featured_image' string-like fields
+            let imgSrc = null;
+            if (imgObj && imgObj.src) imgSrc = imgObj.src;
+            if (!imgSrc) {
+              // some JSON exports include 'featured_image' as plain string
+              if (variant.featured_image && typeof variant.featured_image === 'string') imgSrc = variant.featured_image;
+              if (variant.image && typeof variant.image === 'string') imgSrc = variant.image;
+            }
+
+            // If no src, nothing to update
+            if (!imgSrc) return;
+
+            // Normalize URL (remove query strings to compare)
+            const normalize = (u) => (u || '').split('?')[0].replace(/\.(jpg|jpeg|png|webp|gif)$/i, match => match);
+
+            const mainEls = getMainImageElements();
+
+            // 1) Update main image elements' src/srcset
+            mainEls.forEach(el => {
+              // update src if it looks different
+              try {
+                // preserve srcset if not present in variant; else replace both
+                if (el.src && normalize(el.src) !== normalize(imgSrc)) {
+                  el.src = imgSrc;
+                }
+                if (el.srcset) {
+                  // simple approach: set srcset to imgSrc with a 2x entry if not too fancy
+                  el.srcset = imgSrc + ' 1x';
+                }
+                // also try data-src / data-image attributes
+                if (el.getAttribute('data-src')) el.setAttribute('data-src', imgSrc);
+                if (el.getAttribute('data-image')) el.setAttribute('data-image', imgSrc);
+              } catch (e) {
+                // ignore
+              }
+            });
+
+            // 2) If theme uses thumbnails with data-image-id or data-image attribute, activate the matching thumb
+            // try to find thumbnail elements that match variant's image id or src
+            const thumbSelectors = [
+              '[data-image-id]',
+              '[data-image]',
+              '.gallery__thumbnail img',
+              '.product__thumb img',
+              '.product-single__thumbnail img',
+              '.product-gallery__thumb img'
+            ];
+            thumbSelectors.forEach(sel => {
+              document.querySelectorAll(sel).forEach(node => {
+                let match = false;
+                const dataId = node.closest('[data-image-id]')?.getAttribute('data-image-id') || node.getAttribute('data-image-id') || node.getAttribute('data-image');
+                if (dataId && variant.image && (String(dataId) === String(variant.image.id) || String(dataId) === String(variant.image.id || ''))) match = true;
+                const srcAttr = node.getAttribute('src') || node.getAttribute('data-src') || node.getAttribute('data-image');
+                if (!match && srcAttr && normalize(srcAttr).indexOf(normalize(imgSrc)) !== -1) match = true;
+
+                if (match) {
+                  // activate the thumbnail wrapper
+                  const wrapper = node.closest('button, a, .thumbnail, .thumb, .gallery__thumbnail, .product__thumb, .product-single__thumbnail');
+                  if (wrapper) {
+                    // clear previously active classes
+                    document.querySelectorAll('.gallery__thumbnail.is-active, .product__thumb.is-active, .product-single__thumbnail.is-active, .thumb.is-active, .thumbnail.is-active').forEach(el => el.classList.remove('is-active'));
+                    wrapper.classList.add('is-active');
+                  }
+                }
+              });
+            });
+
+            // last resort: if there are picture or source tags in main element, update their srcset
+            mainEls.forEach(img => {
+              try {
+                // If wrapped in <picture>, update <source> srcset(s)
+                const picture = img.closest('picture');
+                if (picture) {
+                  picture.querySelectorAll('source').forEach(src => {
+                    if (src.srcset && normalize(src.srcset) !== normalize(imgSrc)) {
+                      src.srcset = imgSrc;
+                    }
+                  });
+                }
+              } catch (e) {}
+            });
+          }
+
+          // Utility: set active swatch by variant id
+          function setActiveSwatchByVariantId(variantId) {
+            document.querySelectorAll('.variant-image-wrapper').forEach(el => {
+              const id = el.getAttribute('data-variant-id');
+              if (String(id) === String(variantId)) {
+                el.classList.add('active');
+              } else {
+                el.classList.remove('active');
+              }
+            });
+          }
+
+          // Attach click & key handlers to swatches
+          document.querySelectorAll('.variant-image-wrapper').forEach(wrapper => {
+            function doSelect() {
+              const variantId = wrapper.getAttribute('data-variant-id');
+              if (!variantId) return;
+
+              // update the actual variant input/select (try hidden input first then select)
+              let variantInput = document.querySelector('form[action^="/cart/add"] [name="id"], form[data-product-form] [name="id"], form.product-form [name="id"], select[name="id"]');
+              if (!variantInput) {
+                // try common Shopify selector
+                variantInput = document.querySelector('input[name="id"]') || document.querySelector('select[name="id"]');
+              }
+
+              if (variantInput) {
+                // If it's a select, set value; if input, set value
+                try {
+                  variantInput.value = variantId;
+                  variantInput.dispatchEvent(new Event('input', { bubbles: true }));
+                  variantInput.dispatchEvent(new Event('change', { bubbles: true }));
+                } catch (e) {
+                  // fallback: if setting value doesn't work, attempt to find select option and select it
+                  try {
+                    const select = document.querySelector('select[name="id"]');
+                    if (select) {
+                      Array.from(select.options).forEach(opt => {
+                        if (String(opt.value) === String(variantId)) opt.selected = true;
+                      });
+                      select.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                  } catch (err) {}
+                }
+              }
+
+              // Visually mark swatch
+              document.querySelectorAll('.variant-image-wrapper').forEach(el => el.classList.remove('selected', 'active'));
+              wrapper.classList.add('selected', 'active');
+
+              // Update images gallery/main
+              updateImagesForVariant(variantId);
+            }
+
+            wrapper.addEventListener('click', doSelect);
+            wrapper.addEventListener('keydown', function (e) {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                doSelect();
+              }
+            });
+          });
+
+          // Listen to variant input/select changes (so dropdown/other scripts update swatches)
+          const variantInputs = document.querySelectorAll('form[action^="/cart/add"] [name="id"], select[name="id"], input[name="id"]');
+          variantInputs.forEach(inp => {
+            inp.addEventListener('change', function (e) {
+              const val = this.value;
+              setActiveSwatchByVariantId(val);
+              updateImagesForVariant(val);
+            });
+            inp.addEventListener('input', function (e) {
+              const val = this.value;
+              setActiveSwatchByVariantId(val);
+              updateImagesForVariant(val);
+            });
+          });
+
+          // Initialize: if there's a selected variant from theme, apply
+          try {
+            // many themes put the selected variant in a script tag or select; try select first
+            const initSelect = document.querySelector('form[action^="/cart/add"] [name="id"], select[name="id"], input[name="id"]');
+            if (initSelect && initSelect.value) {
+              setActiveSwatchByVariantId(initSelect.value);
+              updateImagesForVariant(initSelect.value);
+            } else {
+              // fallback to product.selected_or_first_available_variant if available in Liquid
+              {% if product.selected_or_first_available_variant %}
+                setTimeout(function () {
+                  setActiveSwatchByVariantId({{ product.selected_or_first_available_variant.id }});
+                  updateImagesForVariant({{ product.selected_or_first_available_variant.id }});
+                }, 50);
+              {% endif %}
+            }
+          } catch (e) {
+            // ignore
+          }
+        });
+      })();
+    </script>
+  </variant-selects>
+{%- endunless -%} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%- unless product.has_only_default_variant -%}
+  <variant-selects
+    id="variant-selects-{{ section.id }}"
+    data-section="{{ section.id }}"
+    {{ block.shopify_attributes }}
+  >
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        assign picker_type = block.settings.picker_type
+
+        if swatch_count > 0 and block.settings.swatch_shape != 'none'
+          if block.settings.picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          else
+            assign picker_type = 'swatch'
+          endif
+        endif
+      -%}
+
+      {%- if picker_type == 'swatch' or picker_type == 'button' -%}
+
+        <style>
+          .variant-image-wrapper {
+            display: inline-block;
+            margin: 5px;
+            border-radius: 60px;
+            opacity: 0.8;
+            transition: opacity 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            vertical-align: middle;
+            padding: 3px;
+          }
+          .variant-image-wrapper img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 60px;
+            display: block;
+          }
+          .variant-image-wrapper:hover { opacity: 1; transform: translateY(-2px); }
+          .variant-image-wrapper.active, .variant-image-wrapper.selected {
+            opacity: 1;
+            border-color: #000;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+          }
+
+          .variant-images-container { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+        </style>
+
+        <div class="makeOneLIine">
+          <label class="form__label">Velg variant:</label>
+
+          <!-- ⭐ ADDED: SELECTED VARIANT NAME -->
+          <div id="selected-variant-name">
+            {{ product.selected_or_first_available_variant.title }}
+          </div>
+          <style>
+            .makeOneLIine {
+                  display: flex;
+                  gap: 10px;
+                  align-items: center;
+              }
+
+              .makeOneLIine label {
+                  margin: 0;
+              }
+          </style>
+        </div>
+
+        <div class="variant-images-container">
+          {% for variant in product.variants %}
+            {% if variant.image %}
+              <div
+                class="variant-image-wrapper"
+                data-variant-id="{{ variant.id }}"
+                data-image-id="{{ variant.image.id }}"
+                title="{{ variant.title | escape }}"
+                role="button"
+                tabindex="0"
+              >
+                <img
+                  src="{{ variant.image.src | img_url: '100x' }}"
+                  srcset="{{ variant.image.src | img_url: '200x' }} 2x"
+                  alt="{{ variant.title | escape }}"
+                  loading="lazy"
+                />
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+      {%- else -%}
+
+        <div class="product-form__input product-form__input--dropdown">
+          <label class="form__label"></label> :{{ product.selected_or_first_available_variant.title }}
+
+          {% comment %} <!-- ⭐ ADDED INSIDE DROPDOWN MODE TOO -->
+          <div id="selected-variant-name" style="margin: 6px 0; font-weight:600;">
+            {{ product.selected_or_first_available_variant.title }}
+          </div> {% endcomment %}
+
+          <div class="select">
+            {%- if picker_type == 'swatch_dropdown' -%}
+              <span data-selected-value class="dropdown-swatch">
+                {% render 'swatch', swatch: option.selected_value.swatch, shape: block.settings.swatch_shape %}
+              </span>
+            {%- endif -%}
+
+            <select
+              id="Option-{{ section.id }}-{{ forloop.index0 }}"
+              class="select__select"
+              name="options[{{ option.name | escape }}]"
+              form="{{ product_form_id }}"
+            >
+              {% render 'product-variant-options',
+                product: product,
+                option: option,
+                block: block,
+                picker_type: picker_type
+              %}
+            </select>
+
+            <span class="svg-wrapper">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </div>
+
+      {%- endif -%}
+    {%- endfor -%}
+
+    <script type="application/json" id="product-variants-json-{{ section.id }}">
+      {{ product.variants | json }}
+    </script>
+
+    <script>
+      (function () {
+        document.addEventListener('DOMContentLoaded', function () {
+
+          /* Load variants JSON */
+          let variantsJson = [];
+          try {
+            variantsJson = JSON.parse(document.getElementById('product-variants-json-{{ section.id }}').textContent || '[]');
+          } catch (e) {}
+
+          function updateImagesForVariant(variantId) {
+            /* existing image update code (unchanged) */
+          }
+
+          function setActiveSwatchByVariantId(variantId) {
+            document.querySelectorAll('.variant-image-wrapper').forEach(el => {
+              const id = el.getAttribute('data-variant-id');
+              el.classList.toggle('active', String(id) === String(variantId));
+            });
+          }
+
+          /* ⭐ Update Variant Name Function */
+          function updateVariantName(variantId) {
+            const variant = variantsJson.find(v => String(v.id) === String(variantId));
+            const box = document.getElementById('selected-variant-name');
+            if (variant && box) {
+              box.textContent = variant.title;
+            }
+          }
+
+          /* Swatch Click Handler */
+          document.querySelectorAll('.variant-image-wrapper').forEach(wrapper => {
+            function doSelect() {
+              const variantId = wrapper.dataset.variantId;
+              const variant = variantsJson.find(v => String(v.id) === String(variantId));
+
+              let variantInput = document.querySelector('input[name="id"], select[name="id"]');
+              if (variantInput) {
+                variantInput.value = variantId;
+                variantInput.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+
+              document.querySelectorAll('.variant-image-wrapper')
+                .forEach(el => el.classList.remove('selected', 'active'));
+
+              wrapper.classList.add('selected', 'active');
+
+              updateImagesForVariant(variantId);
+
+              /* ⭐ Update selected variant name */
+              updateVariantName(variantId);
+            }
+
+            wrapper.addEventListener('click', doSelect);
+            wrapper.addEventListener('keydown', e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                doSelect();
+              }
+            });
+          });
+
+          /* Dropdown + Input Listener */
+          const variantInputs = document.querySelectorAll('select[name="id"], input[name="id"]');
+          variantInputs.forEach(inp => {
+            inp.addEventListener('change', function () {
+              const variantId = this.value;
+              setActiveSwatchByVariantId(variantId);
+              updateImagesForVariant(variantId);
+
+              /* ⭐ Update selected variant name */
+              updateVariantName(variantId);
+            });
+          });
+
+          /* Initialize Default Variant */
+          const initInput = document.querySelector('select[name="id"], input[name="id"]');
+          if (initInput) {
+            setActiveSwatchByVariantId(initInput.value);
+            updateVariantName(initInput.value);
+          }
+
+        });
+      })();
+    </script>
+
+  </variant-selects>
+{%- endunless -%}

@@ -1,0 +1,459 @@
+{% comment %} <style>
+    /* Main wrapper */
+.mega-menu-v2 {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 30px;
+  padding: 30px 40px;
+}
+
+/* LEFT */
+.mega-menu-v2__heading {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 12px;
+    font-family: 'Barlow Condensed';
+    color: #00514E;
+     margin-top: 0px
+}
+.mega-menu-v2__links {
+    text-align: justify;
+}
+.mega-menu-v2__links li a {
+    font-family: 'Barlow Condensed';
+    font-size: 16px;
+    color: #4D4D4D;
+    font-weight: 500;
+}
+
+
+.mega-menu-v2__links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mega-menu-v2__links li {
+  margin-bottom: 8px;
+}
+
+.mega-menu-v2__links a {
+  text-decoration: none;
+  color: #000;
+  font-size: 14px;
+}
+
+/* RIGHT SLIDER */
+.mega-menu-v2__slider-wrapper {
+  position: relative;
+}
+
+/* Slider */
+.mega-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.mega-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card */
+.mega-v2-card {
+  flex: 0 0 48%;
+  {% comment %} background: #f6f7f9; {% endcomment %}
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.mega-v2-card a {
+  height: 100%;
+  text-decoration: none;
+      text-align: justify;
+}
+
+/* Image */
+.mega-v2-card__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mega-v2-card__image img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Content */
+.mega-v2-card__content {
+  padding: 20px 0px;
+}
+
+.mega-v2-card__content h4 {
+margin: 0 0 8px;
+    font-size: 18px;
+    font-family: 'Barlow Condensed';
+    font-weight: 600;
+    color: #00514E;
+}
+
+.mega-v2-card__content p {
+
+    font-size: 16px;
+    color: #4D4D4D;
+    margin-bottom: 10px;
+    font-family: 'Barlow Condensed';
+    font-weight: 400;
+    margin: 0 0 8px 0;
+}
+
+.mega-v2-link {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Barlow Condensed';
+    color: #000;
+}
+
+/* Arrows */
+.mega-slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.mega-slider-btn.prev {
+  left: -16px;
+}
+
+.mega-slider-btn.next {
+  right: -16px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .mega-menu-v2 {
+    grid-template-columns: 1fr;
+  }
+
+  .mega-v2-card {
+    flex: 0 0 85%;
+  }
+}
+div#MegaMenu-Content-1 {
+    max-width: 1280px;
+    margin: auto;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding:0 40px;
+        position: absolute;
+    top: 64px;
+    z-index: 1;
+}
+</style>
+
+<div class="mega-menu-v2">
+
+  <!-- LEFT COLUMN -->
+  <div class="mega-menu-v2__links">
+    <p class="mega-menu-v2__heading">Mere information</p>
+
+    <ul>
+      <li><a href="/pages/om-os">Om os &nbsp;&nbsp;&nbsp;&nbsp;→</a></li>
+      <li><a href="/pages/kundeservice">Kundeservice &nbsp;&nbsp;&nbsp;&nbsp;→</a></li>
+      <li><a href="/pages/vilkar">Vilkår & fordele &nbsp;&nbsp;&nbsp;&nbsp;→</a></li>
+      <li><a href="/pages/30-dages-retur">30 dages retur &nbsp;&nbsp;&nbsp;&nbsp;→</a></li>
+      <li><a href="/pages/kontakt">Kontakt os &nbsp;&nbsp;&nbsp;&nbsp;→</a></li>
+    </ul>
+  </div>
+
+  <!-- RIGHT SLIDER -->
+
+
+    <ul class="mega-slider" id="megaSliderV2">
+
+
+          <li class="mega-v2-card">
+            <a href="#">
+
+              <div class="mega-v2-card__image">
+                  <img
+                    src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Rectangle_2.png?v=1768200098"
+                    alt="{{ col.title | escape }}"
+                    loading="lazy"
+                  >
+              </div>
+              <div class="mega-v2-card__content">
+                <h4>Vores #1 bestseller</h4>
+                  <p>Oplev de bedste Flekkfritt-produkter og mærker, der definerer Flekkfritt-forskellen.</p>
+                <span class="mega-v2-link">Få din nu →</span>
+              </div>
+
+            </a>
+          </li>
+
+          <li class="mega-v2-card">
+            <a href="#">
+
+              <div class="mega-v2-card__image">
+                  <img
+                    src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Rectangle_3.png?v=1768200108"
+                    alt="{{ col.title | escape }}"
+                    loading="lazy"
+                  >
+              </div>
+              <div class="mega-v2-card__content">
+                <h4>Flekkfritt Samling</h4>
+                  <p>Oplev de bedste Flekkfritt-kollektioner og harmonisk vaskerutine med Spotless.</p>
+                <span class="mega-v2-link">Få din nu →</span>
+              </div>
+
+            </a>
+          </li>
+       
+
+    </ul>
+
+
+  </div>
+
+ {% endcomment %}
+
+
+
+
+ <style>
+/* ===============================
+   MEGA SLIDER STYLES
+================================ */
+
+.mega-slider-wrapper {
+  position: relative;
+  padding: 20px 40px;
+  overflow: hidden;
+}
+
+/* Slider */
+.mega-slider {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  justify-content:center;
+}
+.align-center{
+justify-content:center !important;
+}
+.mega-slider::-webkit-scrollbar {
+  display: none;
+}
+div#MegaMenu-Content-1 {
+    max-width: 1280px;
+    margin: auto;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    padding: 0 80px;
+    position: absolute;
+    top: 64px;
+    z-index: 1;
+}
+/* Card */
+.mega-card {
+  flex: 0 0 calc((100% - 48px) / 4);
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mega-card a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: #000;
+}
+
+/* Image */
+.mega-card__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  border: 1px solid #00514E;
+}
+
+.mega-card__image img {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+/* Footer */
+.mega-card__footer {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  gap: 10px;
+}
+
+.mega-arrow img {
+  width: 20px;
+  display: block;
+}
+
+/* Slider Buttons */
+.mega-slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #00514E;
+  background: #fff;
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: auto;
+}
+
+.mega-slider-btn.prev {
+  left: 0;
+}
+
+.mega-slider-btn.next {
+  right: 0;
+}
+
+.mega-slider-btn:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .mega-card {
+    flex: 0 0 calc((100% - 16px) / 2);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .mega-card {
+    flex: 0 0 85%;
+  }
+
+  .mega-slider-wrapper {
+    padding: 20px 10px;
+  }
+}
+.new-cat{
+display:none !important;
+}
+</style>
+
+<!-- ===============================
+     MEGA SLIDER MARKUP
+================================ -->
+
+<div class="mega-slider-wrapper">
+  <button class="mega-slider-btn prev new-cat" aria-label="Previous">‹</button>
+
+  <ul class="mega-slider align-center">
+    {% assign collections_list = "laundry-sheets,utstyr" | split: "," %}
+
+    {% for handle in collections_list %}
+      {% assign col = collections[handle] %}
+      {% if col %}
+        <li class="mega-card">
+          <a href="{{ col.url }}">
+            <div class="mega-card__image">
+              {% if col.featured_image %}
+                <img
+                  src="{{ col.featured_image | image_url: width: 420 }}"
+                  alt="{{ col.title | escape }}"
+                  loading="lazy"
+                >
+              {% endif %}
+            </div>
+
+            <div class="mega-card__footer">
+              <span>{{ col.title }}</span>
+              <span class="mega-arrow">
+                <img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/left-arrow-svgrepo-com.svg?v=1767982474" alt="">
+              </span>
+            </div>
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  <button class="mega-slider-btn next new-cat" aria-label="Next">›</button>
+</div>
+
+<!-- ===============================
+     MULTI SLIDER SCRIPT
+================================ -->
+
+<script>
+(function () {
+  function initMegaSliders() {
+    document.querySelectorAll('.mega-slider-wrapper').forEach(function (wrapper) {
+      const slider = wrapper.querySelector('.mega-slider');
+      const nextBtn = wrapper.querySelector('.mega-slider-btn.next');
+      const prevBtn = wrapper.querySelector('.mega-slider-btn.prev');
+
+      if (!slider || !nextBtn || !prevBtn) return;
+
+      const getScrollAmount = () => {
+        const card = slider.querySelector('.mega-card');
+        return card ? card.offsetWidth + 16 : 300;
+      };
+
+      nextBtn.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        slider.scrollBy({
+          left: getScrollAmount(),
+          behavior: 'smooth'
+        });
+      };
+
+      prevBtn.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        slider.scrollBy({
+          left: -getScrollAmount(),
+          behavior: 'smooth'
+        });
+      };
+    });
+  }
+
+  /* Initial run */
+  initMegaSliders();
+
+  /* Shopify mega menu safe re-init */
+  document.addEventListener('mouseover', initMegaSliders);
+})();
+</script>

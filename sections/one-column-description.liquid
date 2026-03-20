@@ -1,0 +1,182 @@
+{% schema %}
+{
+  "name": "Description with toggle",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "right_content",
+      "label": "Right Column Content",
+      "default": "<p>This is dummy text. Replace it from customization.</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "One Column Description"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="two-col-desc">
+  <!-- Desktop View -->
+  <div class="two-col-desc__desktop">
+    <div class="two-col-desc__col">
+      <p class="heading-toggle">Beskrivelse</p>
+      <div class="two-col-desc__text">
+        {{ product.description }}
+      </div>
+    </div>
+    {% comment %} <div class="two-col-desc__col">
+      <p class="heading-toggle">Extra Info</p>
+      <div class="two-col-desc__text">
+        {{ section.settings.right_content }}
+      </div>
+    </div> {% endcomment %}
+  </div>
+
+  <!-- Mobile Accordion View -->
+  <div class="two-col-desc__mobile">
+    <div class="two-col-accordion-wrapper">
+      <button class="two-col-accordion-toggle" aria-expanded="false">
+        <span class="two-col-accordion-label">Beskrivelse</span>
+        <span class="two-col-toggle-text">Les mer</span>
+      </button>
+      <div class="two-col-accordion-content">
+        <div>{{ product.description }}</div>
+      </div>
+    </div>
+
+    {% comment %} <div class="two-col-accordion-wrapper">
+      <button class="two-col-accordion-toggle" aria-expanded="false">
+        <span class="two-col-accordion-label">Extra Info</span>
+        <span class="two-col-toggle-text">Les mer</span>
+      </button>
+      <div class="two-col-accordion-content">
+        <div>{{ section.settings.right_content }}</div>
+      </div>
+    </div> {% endcomment %}
+  </div>
+</div>
+
+<style>
+.two-col-desc {
+  margin: 30px 0;
+  Padding: 0px 5rem;
+      max-width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.two-col-desc__desktop {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+h3.heading-toggle {
+    font-weight: 700;
+}
+.two-col-desc__col h3,
+.two-col-desc__col > p {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #00514E;
+  font-weight: 700;
+}
+.two-col-desc__text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+.two-col-desc__mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .two-col-desc__desktop {
+    display: none;
+  }
+  .two-col-desc__mobile {
+    display: block;
+  }
+  .two-col-desc__mobile {
+    padding: 0px 0rem;
+}
+.two-col-desc {
+  margin: 30px 0;
+  Padding: 0px 1.5rem;
+      max-width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+}
+
+/* Accordion Styles (unique) */
+.two-col-accordion-wrapper {
+  border-radius: 6px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.two-col-accordion-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 15px;
+  font-weight: 400;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  color: #00514E;
+  border: 1px solid #00514E;
+  border-radius: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+.two-col-accordion-toggle:hover {
+  background-color: #00514E;
+  color: #fff;
+}
+.two-col-accordion-toggle[aria-expanded="true"] {
+  background-color: #00514E;
+  color: #fff;
+  border-color: #00514E;
+}
+.two-col-accordion-content {
+  display: none;
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #00541e;
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.two-col-accordion-toggle[aria-expanded="true"] + .two-col-accordion-content {
+  display: block;
+}
+span.two-col-accordion-label {
+  font-size: 18px;
+  font-weight: 400;
+  font-family: Poppins, sans-serif;
+}
+.two-col-toggle-text {
+  font-size: 14px;
+}
+</style>
+
+<script>
+document.querySelectorAll('.two-col-accordion-toggle').forEach(button => {
+  button.addEventListener('click', () => {
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+    // Close all accordions in this section only
+    button.closest('.two-col-desc__mobile').querySelectorAll('.two-col-accordion-toggle').forEach(btn => {
+      btn.setAttribute('aria-expanded', 'false');
+      btn.querySelector('.two-col-toggle-text').textContent = 'Les mer';
+    });
+
+    if (!isExpanded) {
+      button.setAttribute('aria-expanded', 'true');
+      button.querySelector('.two-col-toggle-text').textContent = 'Les mindre';
+    }
+  });
+});
+</script>

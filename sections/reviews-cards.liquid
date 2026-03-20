@@ -1,0 +1,199 @@
+<div class="review-section">
+  {% if section.settings.section_heading != blank %}
+    <h2 class="review-heading">{{ section.settings.section_heading }}</h2>
+  {% endif %}
+
+  <div class="review-container">
+    {% for block in section.blocks %}
+      <div class="review-card">
+        <h3>{{ block.settings.title }}</h3>
+
+        <p class="review-message">
+          {{ block.settings.message }}
+        </p>
+
+        {% if block.settings.link_url %}
+          <a href="{{ block.settings.link_url }}" class="review-link">
+            {{ block.settings.link_text }}
+          </a>
+        {% endif %}
+
+        <div class="review-user">
+          <span class="name">{{ block.settings.username }}</span>
+
+          {% if block.settings.avatar %}
+            <img class="avatar"
+                 src="{{ block.settings.avatar | img_url: '80x80' }}"
+                 alt="{{ block.settings.username }}">
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.review-section {
+  padding: 60px 0;
+     background: linear-gradient(#ffffff, #58ABBD);
+  text-align: center;
+}
+
+.review-heading {
+    font-family: Barlow Condensed, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.review-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ===== MOBILE SLIDER ===== */
+@media (max-width: 767px) {
+  .review-container {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content:flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .review-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .review-card {
+    scroll-snap-align: center;
+    min-width: 260px;
+    flex: 0 0 auto;
+  }
+  .review-message {
+    height: auto !important;
+}
+}
+/* ===== END MOBILE SLIDER ===== */
+
+.review-card {
+  background: #fff;
+  border: 2px solid #121212;
+  border-radius: 12px;
+  padding: 20px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 12px #0001;
+}
+
+.review-card h3 {
+    font-family: Barlow Condensed, sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+    {% comment %} height: 60px; {% endcomment %}
+}
+span.name{
+    font-weight: 600;
+    color: #12121294;
+    font-size: 14px;
+}
+.review-message {
+    font-size: 15px;
+    color: #555;
+    font-weight: 700;
+    height: 80px;
+    font-style:italic;
+}
+
+.review-link {
+    display: block;
+    margin-top: 10px;
+    color: #12121278;
+    font-size: 14px;
+    font-style: italic;
+}
+
+
+.review-user {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.review-user .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #00514E;
+}
+</style>
+
+{% schema %}
+{
+  "name": "Review Cards",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "Customer Reviews"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Review Title",
+          "default": "Sikker shopping!"
+        },
+        {
+          "type": "textarea",
+          "id": "message",
+          "label": "Review Message",
+          "default": "\"En gave fra Flekkfritt skal altid opleve som personlig, gennemtenkt og enkel at gi…\""
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link Text",
+          "default": "Se hvordan det virker →"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "text",
+          "id": "username",
+          "label": "User Name",
+          "default": "Paula P"
+        },
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "User Image (Avatar)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Review Cards",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

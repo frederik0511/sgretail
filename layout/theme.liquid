@@ -1,0 +1,1755 @@
+<!doctype html>
+<html class="js" lang="{{ request.locale.iso_code }}">
+  <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-N5G85N79');</script>
+<!-- End Google Tag Manager -->
+<script>!function () { if (window.t4hto4) console.log("WiserNotify pixel installed multiple time in this page"); else { window.t4hto4 = !0; var t = document, e = window, n = function () { var e = t.createElement("script"); e.type = "text/javascript", e.async = !0, e.src = "https://pt.wisernotify.com/pixel.js?ti=b5fmjlat8vg02", document.body.appendChild(e) }; "complete" === t.readyState ? n() : window.attachEvent ? e.attachEvent("onload", n) : e.addEventListener("load", n, !1) } }();</script>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="">
+    <link rel="canonical" href="{{ canonical_url }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+<meta name="facebook-domain-verification" content="c6zqik3ezxor49ujzmyf5bta7qkhmp" />
+    
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+
+    {%- unless settings.type_header_font.system? and settings.type_body_font.system? -%}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    {%- endunless -%}
+
+    <title>
+      {{ page_title }}
+      {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+      {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    </title>
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+
+    {% render 'meta-tags' %}
+
+    <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'details-modal.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
+
+    {%- if settings.animations_reveal_on_scroll -%}
+      <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {{ content_for_header }}
+
+    {%- liquid
+      assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
+      assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic'
+      assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+    %}
+
+    {% style %}
+      {{ settings.type_body_font | font_face: font_display: 'swap' }}
+      {{ body_font_bold | font_face: font_display: 'swap' }}
+      {{ body_font_italic | font_face: font_display: 'swap' }}
+      {{ body_font_bold_italic | font_face: font_display: 'swap' }}
+      {{ settings.type_header_font | font_face: font_display: 'swap' }}
+
+      {% for scheme in settings.color_schemes -%}
+        {% assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id %}
+        {% if forloop.index == 1 -%}
+          :root,
+        {%- endif %}
+        .color-{{ scheme.id }} {
+          --color-background: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        {% if scheme.settings.background_gradient != empty %}
+          --gradient-background: {{ scheme.settings.background_gradient }};
+        {% else %}
+          --gradient-background: {{ scheme.settings.background }};
+        {% endif %}
+
+        {% liquid
+          assign background_color = scheme.settings.background
+          assign background_color_brightness = background_color | color_brightness
+          if background_color_brightness <= 26
+            assign background_color_contrast = background_color | color_lighten: 50
+          elsif background_color_brightness <= 65
+            assign background_color_contrast = background_color | color_lighten: 5
+          else
+            assign background_color_contrast = background_color | color_darken: 25
+          endif
+        %}
+
+        --color-foreground: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --color-background-contrast: {{ background_color_contrast.red }},{{ background_color_contrast.green }},{{ background_color_contrast.blue }};
+        --color-shadow: {{ scheme.settings.shadow.red }},{{ scheme.settings.shadow.green }},{{ scheme.settings.shadow.blue }};
+        --color-button: {{ scheme.settings.button.red }},{{ scheme.settings.button.green }},{{ scheme.settings.button.blue }};
+        --color-button-text: {{ scheme.settings.button_label.red }},{{ scheme.settings.button_label.green }},{{ scheme.settings.button_label.blue }};
+        --color-secondary-button: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        --color-secondary-button-text: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+        --color-link: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+        --color-badge-foreground: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --color-badge-background: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        --color-badge-border: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --payment-terms-background-color: rgb({{ scheme.settings.background.rgb }});
+      }
+      {% endfor %}
+
+      {{ scheme_classes | prepend: 'body' }} {
+        color: rgba(var(--color-foreground), 0.75);
+        background-color: rgb(var(--color-background));
+      }
+
+      :root {
+        --font-body-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+        --font-body-style: {{ settings.type_body_font.style }};
+        --font-body-weight: {{ settings.type_body_font.weight }};
+        --font-body-weight-bold: {{ settings.type_body_font.weight | plus: 300 | at_most: 1000 }};
+
+        --font-heading-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+        --font-heading-style: {{ settings.type_header_font.style }};
+        --font-heading-weight: {{ settings.type_header_font.weight }};
+
+        --font-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+        --font-heading-scale: {{ settings.heading_scale | times: 1.0 | divided_by: settings.body_scale }};
+
+        --media-padding: {{ settings.media_padding }}px;
+        --media-border-opacity: {{ settings.media_border_opacity | divided_by: 100.0 }};
+        --media-border-width: {{ settings.media_border_thickness }}px;
+        --media-radius: {{ settings.media_radius }}px;
+        --media-shadow-opacity: {{ settings.media_shadow_opacity | divided_by: 100.0 }};
+        --media-shadow-horizontal-offset: {{ settings.media_shadow_horizontal_offset }}px;
+        --media-shadow-vertical-offset: {{ settings.media_shadow_vertical_offset }}px;
+        --media-shadow-blur-radius: {{ settings.media_shadow_blur }}px;
+        --media-shadow-visible: {% if settings.media_shadow_opacity > 0 %}1{% else %}0{% endif %};
+
+        --page-width: {{ settings.page_width | divided_by: 10 }}rem;
+        --page-width-margin: {% if settings.page_width == '1600' %}2{% else %}0{% endif %}rem;
+
+        --product-card-image-padding: {{ settings.card_image_padding | divided_by: 10.0 }}rem;
+        --product-card-corner-radius: {{ settings.card_corner_radius | divided_by: 10.0 }}rem;
+        --product-card-text-alignment: {{ settings.card_text_alignment }};
+        --product-card-border-width: {{ settings.card_border_thickness | divided_by: 10.0 }}rem;
+        --product-card-border-opacity: {{ settings.card_border_opacity | divided_by: 100.0 }};
+        --product-card-shadow-opacity: {{ settings.card_shadow_opacity | divided_by: 100.0 }};
+        --product-card-shadow-visible: {% if settings.card_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --product-card-shadow-horizontal-offset: {{ settings.card_shadow_horizontal_offset | divided_by: 10.0 }}rem;
+        --product-card-shadow-vertical-offset: {{ settings.card_shadow_vertical_offset | divided_by: 10.0 }}rem;
+        --product-card-shadow-blur-radius: {{ settings.card_shadow_blur | divided_by: 10.0 }}rem;
+
+        --collection-card-image-padding: {{ settings.collection_card_image_padding | divided_by: 10.0 }}rem;
+        --collection-card-corner-radius: {{ settings.collection_card_corner_radius | divided_by: 10.0 }}rem;
+        --collection-card-text-alignment: {{ settings.collection_card_text_alignment }};
+        --collection-card-border-width: {{ settings.collection_card_border_thickness | divided_by: 10.0 }}rem;
+        --collection-card-border-opacity: {{ settings.collection_card_border_opacity | divided_by: 100.0 }};
+        --collection-card-shadow-opacity: {{ settings.collection_card_shadow_opacity | divided_by: 100.0 }};
+        --collection-card-shadow-visible: {% if settings.collection_card_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --collection-card-shadow-horizontal-offset: {{ settings.collection_card_shadow_horizontal_offset | divided_by: 10.0 }}rem;
+        --collection-card-shadow-vertical-offset: {{ settings.collection_card_shadow_vertical_offset | divided_by: 10.0 }}rem;
+        --collection-card-shadow-blur-radius: {{ settings.collection_card_shadow_blur | divided_by: 10.0 }}rem;
+
+        --blog-card-image-padding: {{ settings.blog_card_image_padding | divided_by: 10.0 }}rem;
+        --blog-card-corner-radius: {{ settings.blog_card_corner_radius | divided_by: 10.0 }}rem;
+        --blog-card-text-alignment: {{ settings.blog_card_text_alignment }};
+        --blog-card-border-width: {{ settings.blog_card_border_thickness | divided_by: 10.0 }}rem;
+        --blog-card-border-opacity: {{ settings.blog_card_border_opacity | divided_by: 100.0 }};
+        --blog-card-shadow-opacity: {{ settings.blog_card_shadow_opacity | divided_by: 100.0 }};
+        --blog-card-shadow-visible: {% if settings.blog_card_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --blog-card-shadow-horizontal-offset: {{ settings.blog_card_shadow_horizontal_offset | divided_by: 10.0 }}rem;
+        --blog-card-shadow-vertical-offset: {{ settings.blog_card_shadow_vertical_offset | divided_by: 10.0 }}rem;
+        --blog-card-shadow-blur-radius: {{ settings.blog_card_shadow_blur | divided_by: 10.0 }}rem;
+
+        --badge-corner-radius: {{ settings.badge_corner_radius | divided_by: 10.0 }}rem;
+
+        --popup-border-width: {{ settings.popup_border_thickness }}px;
+        --popup-border-opacity: {{ settings.popup_border_opacity | divided_by: 100.0 }};
+        --popup-corner-radius: {{ settings.popup_corner_radius }}px;
+        --popup-shadow-opacity: {{ settings.popup_shadow_opacity | divided_by: 100.0 }};
+        --popup-shadow-horizontal-offset: {{ settings.popup_shadow_horizontal_offset }}px;
+        --popup-shadow-vertical-offset: {{ settings.popup_shadow_vertical_offset }}px;
+        --popup-shadow-blur-radius: {{ settings.popup_shadow_blur }}px;
+
+        --drawer-border-width: {{ settings.drawer_border_thickness }}px;
+        --drawer-border-opacity: {{ settings.drawer_border_opacity | divided_by: 100.0 }};
+        --drawer-shadow-opacity: {{ settings.drawer_shadow_opacity | divided_by: 100.0 }};
+        --drawer-shadow-horizontal-offset: {{ settings.drawer_shadow_horizontal_offset }}px;
+        --drawer-shadow-vertical-offset: {{ settings.drawer_shadow_vertical_offset }}px;
+        --drawer-shadow-blur-radius: {{ settings.drawer_shadow_blur }}px;
+
+        --spacing-sections-desktop: {{ settings.spacing_sections }}px;
+        --spacing-sections-mobile: {% if settings.spacing_sections < 24 %}{{ settings.spacing_sections }}{% else %}{{ settings.spacing_sections | times: 0.7 | round | at_least: 20 }}{% endif %}px;
+
+        --grid-desktop-vertical-spacing: {{ settings.spacing_grid_vertical }}px;
+        --grid-desktop-horizontal-spacing: {{ settings.spacing_grid_horizontal }}px;
+        --grid-mobile-vertical-spacing: {{ settings.spacing_grid_vertical | divided_by: 2 }}px;
+        --grid-mobile-horizontal-spacing: {{ settings.spacing_grid_horizontal | divided_by: 2 }}px;
+
+        --text-boxes-border-opacity: {{ settings.text_boxes_border_opacity | divided_by: 100.0 }};
+        --text-boxes-border-width: {{ settings.text_boxes_border_thickness }}px;
+        --text-boxes-radius: {{ settings.text_boxes_radius }}px;
+        --text-boxes-shadow-opacity: {{ settings.text_boxes_shadow_opacity | divided_by: 100.0 }};
+        --text-boxes-shadow-visible: {% if settings.text_boxes_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --text-boxes-shadow-horizontal-offset: {{ settings.text_boxes_shadow_horizontal_offset }}px;
+        --text-boxes-shadow-vertical-offset: {{ settings.text_boxes_shadow_vertical_offset }}px;
+        --text-boxes-shadow-blur-radius: {{ settings.text_boxes_shadow_blur }}px;
+
+        --buttons-radius: {{ settings.buttons_radius }}px;
+        --buttons-radius-outset: {% if settings.buttons_radius > 0 %}{{ settings.buttons_radius | plus: settings.buttons_border_thickness }}{% else %}0{% endif %}px;
+        --buttons-border-width: {% if settings.buttons_border_opacity > 0 %}{{ settings.buttons_border_thickness }}{% else %}0{% endif %}px;
+        --buttons-border-opacity: {{ settings.buttons_border_opacity | divided_by: 100.0 }};
+        --buttons-shadow-opacity: {{ settings.buttons_shadow_opacity | divided_by: 100.0 }};
+        --buttons-shadow-visible: {% if settings.buttons_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --buttons-shadow-horizontal-offset: {{ settings.buttons_shadow_horizontal_offset }}px;
+        --buttons-shadow-vertical-offset: {{ settings.buttons_shadow_vertical_offset }}px;
+        --buttons-shadow-blur-radius: {{ settings.buttons_shadow_blur }}px;
+        --buttons-border-offset: {% if settings.buttons_radius > 0 or settings.buttons_shadow_opacity > 0 %}0.3{% else %}0{% endif %}px;
+
+        --inputs-radius: {{ settings.inputs_radius }}px;
+        --inputs-border-width: {{ settings.inputs_border_thickness }}px;
+        --inputs-border-opacity: {{ settings.inputs_border_opacity | divided_by: 100.0 }};
+        --inputs-shadow-opacity: {{ settings.inputs_shadow_opacity | divided_by: 100.0 }};
+        --inputs-shadow-horizontal-offset: {{ settings.inputs_shadow_horizontal_offset }}px;
+        --inputs-margin-offset: {% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_opacity > 0 %}{{ settings.inputs_shadow_vertical_offset | abs }}{% else %}0{% endif %}px;
+        --inputs-shadow-vertical-offset: {{ settings.inputs_shadow_vertical_offset }}px;
+        --inputs-shadow-blur-radius: {{ settings.inputs_shadow_blur }}px;
+        --inputs-radius-outset: {% if settings.inputs_radius > 0 %}{{ settings.inputs_radius | plus: settings.inputs_border_thickness }}{% else %}0{% endif %}px;
+
+        --variant-pills-radius: {{ settings.variant_pills_radius }}px;
+        --variant-pills-border-width: {{ settings.variant_pills_border_thickness }}px;
+        --variant-pills-border-opacity: {{ settings.variant_pills_border_opacity | divided_by: 100.0 }};
+        --variant-pills-shadow-opacity: {{ settings.variant_pills_shadow_opacity | divided_by: 100.0 }};
+        --variant-pills-shadow-horizontal-offset: {{ settings.variant_pills_shadow_horizontal_offset }}px;
+        --variant-pills-shadow-vertical-offset: {{ settings.variant_pills_shadow_vertical_offset }}px;
+        --variant-pills-shadow-blur-radius: {{ settings.variant_pills_shadow_blur }}px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+
+      html {
+        box-sizing: border-box;
+        font-size: calc(var(--font-body-scale) * 62.5%);
+        height: 100%;
+      }
+
+      body {
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        grid-template-columns: 100%;
+        min-height: 100%;
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: 0.06rem;
+        line-height: calc(1 + 0.8 / var(--font-body-scale));
+        font-family: var(--font-body-family);
+        font-style: var(--font-body-style);
+        font-weight: var(--font-body-weight);
+      }
+
+      @media screen and (min-width: 750px) {
+        body {
+          font-size: 1.6rem;
+        }
+      }
+    {% endstyle %}
+
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
+
+    {%- if settings.cart_type == 'drawer' -%}
+      {{ 'component-cart-drawer.css' | asset_url | stylesheet_tag }}
+      {{ 'component-cart.css' | asset_url | stylesheet_tag }}
+      {{ 'component-totals.css' | asset_url | stylesheet_tag }}
+      {{ 'component-price.css' | asset_url | stylesheet_tag }}
+      {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
+
+    {%- unless settings.type_body_font.system? -%}
+      {% comment %}theme-check-disable AssetPreload{% endcomment %}
+      <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
+      {% comment %}theme-check-enable AssetPreload{% endcomment %}
+    {%- endunless -%}
+    {%- unless settings.type_header_font.system? -%}
+      {% comment %}theme-check-disable AssetPreload{% endcomment %}
+      <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
+      {% comment %}theme-check-enable AssetPreload{% endcomment %}
+    {%- endunless -%}
+
+    {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+      {{ 'component-localization-form.css' | asset_url | stylesheet_tag: preload: true }}
+      <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- if settings.predictive_search_enabled -%}
+      <link
+        rel="stylesheet"
+        href="{{ 'component-predictive-search.css' | asset_url }}"
+        media="print"
+        onload="this.media='all'"
+      >
+    {%- endif -%}
+
+    <script>
+      if (Shopify.designMode) {
+        document.documentElement.classList.add('shopify-design-mode');
+      }
+    </script>
+
+    <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "si82f8qxlx");
+</script>
+{% include 'dataLayer-gtm-body' %}
+
+  </head>
+
+  <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N5G85N79"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <a class="skip-to-content-link button visually-hidden" href="#MainContent">
+      {{ 'accessibility.skip_to_text' | t }}
+    </a>
+
+    {%- if settings.cart_type == 'drawer' -%}
+      {%- render 'cart-drawer' -%}
+    {%- endif -%}
+
+    {% sections 'header-group' %}
+
+    <main id="MainContent" class="content-for-layout focus-none
+      {% if template.name == 'index' %} home-page
+    {% elsif template.name contains 'product' %} product-page
+    {% elsif template.name contains 'collection' %} collection-page
+    {% elsif template.name contains 'cart' %} cart-page
+    {% else %} other-page{% endif %}
+      " role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    <ul hidden>
+      <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>
+      <li id="a11y-new-window-message">{{ 'accessibility.link_messages.new_window' | t }}</li>
+    </ul>
+
+    <script>
+      window.shopUrl = '{{ request.origin }}';
+      window.routes = {
+        cart_add_url: '{{ routes.cart_add_url }}',
+        cart_change_url: '{{ routes.cart_change_url }}',
+        cart_update_url: '{{ routes.cart_update_url }}',
+        cart_url: '{{ routes.cart_url }}',
+        predictive_search_url: '{{ routes.predictive_search_url }}',
+      };
+
+      window.cartStrings = {
+        error: `{{ 'sections.cart.cart_error' | t }}`,
+        quantityError: `{{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
+      };
+
+      window.variantStrings = {
+        addToCart: `{{ 'products.product.add_to_cart' | t }}`,
+        soldOut: `{{ 'products.product.sold_out' | t }}`,
+        unavailable: `{{ 'products.product.unavailable' | t }}`,
+        unavailable_with_option: `{{ 'products.product.value_unavailable' | t: option_value: '[value]' }}`,
+      };
+
+      window.quickOrderListStrings = {
+        itemsAdded: `{{ 'sections.quick_order_list.items_added.other' | t: quantity: '[quantity]' }}`,
+        itemAdded: `{{ 'sections.quick_order_list.items_added.one' | t: quantity: '[quantity]' }}`,
+        itemsRemoved: `{{ 'sections.quick_order_list.items_removed.other' | t: quantity: '[quantity]' }}`,
+        itemRemoved: `{{ 'sections.quick_order_list.items_removed.one' | t: quantity: '[quantity]' }}`,
+        viewCart: `{{- 'sections.quick_order_list.view_cart' | t -}}`,
+        each: `{{- 'sections.quick_order_list.each' | t: money: '[money]' }}`,
+        min_error: `{{- 'sections.quick_order_list.min_error' | t: min: '[min]' }}`,
+        max_error: `{{- 'sections.quick_order_list.max_error' | t: max: '[max]' }}`,
+        step_error: `{{- 'sections.quick_order_list.step_error' | t: step: '[step]' }}`,
+      };
+
+      window.accessibilityStrings = {
+        imageAvailable: `{{ 'products.product.media.image_available' | t: index: '[index]' }}`,
+        shareSuccess: `{{ 'general.share.success_message' | t }}`,
+        pauseSlideshow: `{{ 'sections.slideshow.pause_slideshow' | t }}`,
+        playSlideshow: `{{ 'sections.slideshow.play_slideshow' | t }}`,
+        recipientFormExpanded: `{{ 'recipient.form.expanded' | t }}`,
+        recipientFormCollapsed: `{{ 'recipient.form.collapsed' | t }}`,
+        countrySelectorSearchCount: `{{ 'localization.country_results_count' | t: count: '[count]' }}`,
+      };
+    </script>
+<!-- <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Get all variant select elements (usually there's only one per product)
+    const variantSelects = document.querySelectorAll('form[action^="/cart/add"] select');
+
+    variantSelects.forEach(function (select) {
+      if (select && select.options.length > 0) {
+        // Add a placeholder as the first option
+        const placeholder = document.createElement("option");
+        placeholder.text = "Please select an option";
+        placeholder.value = "";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+
+        // Insert placeholder at the top
+        select.insertBefore(placeholder, select.firstChild);
+
+        // Disable add-to-cart button until selection is made
+        const form = select.closest("form");
+        const addToCartBtn = form.querySelector('[type="submit"]');
+        if (addToCartBtn) {
+          addToCartBtn.disabled = true;
+        }
+
+        // Enable button when user makes a selection
+        select.addEventListener("change", function () {
+          if (addToCartBtn && select.value !== "") {
+            addToCartBtn.disabled = false;
+          }
+        });
+      }
+    });
+  });
+
+</script> -->
+
+
+
+
+{% comment %} <script>
+  document.querySelectorAll('.collection-add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent default form submission
+
+      const formData = new FormData(this);
+      const submitButton = this.querySelector('.add-to-cart-btn');
+      const quantity = parseInt(this.querySelector('input[name="quantity"]').value || 1);
+
+      // AJAX request to Shopify
+      fetch('/cart/add.js', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Add to cart failed');
+        return response.json();
+      })
+      .then(data => {
+        // Change button text
+        submitButton.textContent = 'Lagt til';
+        submitButton.classList.add('added');
+
+        // Update cart count
+        updateCartCount();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+
+      return false;
+    });
+  });
+
+  function updateCartCount() {
+    fetch('/cart.js')
+      .then(res => res.json())
+      .then(cart => {
+        const count = cart.item_count;
+
+        let cartBubble = document.querySelector('.cart-count-bubble span[aria-hidden="true"]');
+        let cartBubbleHidden = document.querySelector('.cart-count-bubble .visually-hidden');
+        let cartBubbleWrapper = document.querySelector('.cart-count-bubble');
+
+        // If cart bubble doesn't exist, create it
+        if (!cartBubbleWrapper) {
+          const bubble = document.createElement('div');
+          bubble.className = 'cart-count-bubble';
+          bubble.innerHTML = `
+            <span aria-hidden="true">${count}</span>
+            <span class="visually-hidden">${count} items</span>
+          `;
+
+          // Adjust this selector based on your cart icon container
+          const cartIconContainer = document.querySelector('.site-header__cart') || document.querySelector('.header__icon--cart');
+
+          if (cartIconContainer) {
+            cartIconContainer.appendChild(bubble);
+          }
+        } else {
+          // Update existing cart bubble
+          cartBubble.textContent = count;
+          cartBubbleHidden.textContent = `${count} items`;
+
+          // Make sure the cart bubble is visible
+          cartBubbleWrapper.style.display = 'inline-block';
+        }
+      })
+      .catch(error => {
+        console.error('Cart count update failed:', error);
+      });
+  }
+</script> {% endcomment %}
+
+
+
+
+
+{% comment %} Bubble new code {% endcomment %}
+
+<script>
+  document.querySelectorAll('.collection-add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent default form submission
+
+      const formData = new FormData(this);
+      const submitButton = this.querySelector('.add-to-cart-btn');
+      const quantity = parseInt(this.querySelector('input[name="quantity"]').value || 1);
+
+      // AJAX request to Shopify
+      fetch('/cart/add.js', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Add to cart failed');
+        return response.json();
+      })
+      .then(data => {
+        // Change button text
+        submitButton.textContent = 'Lagt til';
+        submitButton.classList.add('added');
+
+        // Update cart count and refresh cart drawer
+        updateCartCount();
+        refreshCartDrawer();
+        
+        // Dispatch cart updated event
+        document.dispatchEvent(new CustomEvent('cart:updated', {
+          detail: {
+            cart: data
+          }
+        }));
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+
+      return false;
+    });
+  });
+
+  function updateCartCount() {
+    fetch('/cart.js')
+      .then(res => res.json())
+      .then(cart => {
+        const count = cart.item_count;
+
+        // Update all cart bubble elements
+        const cartBubbles = document.querySelectorAll('.cart-count-bubble');
+        
+        if (cartBubbles.length > 0) {
+          cartBubbles.forEach(bubble => {
+            const visibleSpan = bubble.querySelector('span[aria-hidden="true"]');
+            const hiddenSpan = bubble.querySelector('.visually-hidden');
+            
+            if (visibleSpan) visibleSpan.textContent = count;
+            if (hiddenSpan) hiddenSpan.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
+            
+            bubble.style.display = count > 0 ? 'inline-block' : 'none';
+          });
+        } else {
+          // Create cart bubble if it doesn't exist
+          createCartBubble(count);
+        }
+
+        // Also update any cart icon text that shows count
+        const cartIcons = document.querySelectorAll('.cart-count, .header__cart-count');
+        cartIcons.forEach(icon => {
+          icon.textContent = count;
+          icon.style.display = count > 0 ? 'inline-block' : 'none';
+        });
+      })
+      .catch(error => {
+        console.error('Cart count update failed:', error);
+      });
+  }
+
+  function createCartBubble(count) {
+    const bubble = document.createElement('div');
+    bubble.className = 'cart-count-bubble';
+    bubble.innerHTML = `
+      <span aria-hidden="true">${count}</span>
+      <span class="visually-hidden">${count} ${count === 1 ? 'item' : 'items'}</span>
+    `;
+    bubble.style.display = count > 0 ? 'inline-block' : 'none';
+
+    // Try different possible cart icon containers
+    const cartContainers = [
+      '.site-header__cart',
+      '.header__icon--cart',
+      '.cart-icon',
+      '#cart-icon-bubble',
+      '.header__icons [href*="/cart"]'
+    ];
+
+    for (const selector of cartContainers) {
+      const container = document.querySelector(selector);
+      if (container) {
+        // Remove existing bubble if any
+        const existingBubble = container.querySelector('.cart-count-bubble');
+        if (existingBubble) existingBubble.remove();
+        
+        container.appendChild(bubble);
+        break;
+      }
+    }
+  }
+
+  function refreshCartDrawer() {
+    // Refresh cart drawer contents
+    const cartDrawer = document.querySelector('cart-drawer');
+    if (cartDrawer && typeof cartDrawer.fetchContents === 'function') {
+      cartDrawer.fetchContents();
+    } else {
+      // Alternative method to refresh cart drawer
+      fetch('/cart?section_id=cart-drawer')
+        .then(response => response.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const newCartDrawer = doc.querySelector('cart-drawer');
+          
+          if (newCartDrawer) {
+            const existingCartDrawer = document.querySelector('cart-drawer');
+            if (existingCartDrawer) {
+              existingCartDrawer.innerHTML = newCartDrawer.innerHTML;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Cart drawer refresh failed:', error);
+        });
+    }
+  }
+
+  // Listen for cart updates from other components
+  document.addEventListener('cart:updated', function(event) {
+    updateCartCount();
+    refreshCartDrawer();
+  });
+
+  // Initialize cart count on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!-- <script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Intercept all product forms
+  document.querySelectorAll('form[action^="/cart/add"]').forEach(form => {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      // Add to cart via AJAX
+      fetch('/cart/add.js', {
+        method: 'POST',
+        body: formData
+      })
+      .then(() => {
+        // Now fetch updated drawer content
+        return fetch('/cart?view=drawer');
+      })
+      .then(response => response.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newDrawer = doc.querySelector('.cart-drawer.drawer.animate');
+
+        const currentDrawer = document.querySelector('.cart-drawer.drawer.animate');
+
+        if (newDrawer && currentDrawer) {
+          currentDrawer.innerHTML = newDrawer.innerHTML;
+
+          // Open cart drawer
+          currentDrawer.classList.add('active');
+          document.documentElement.classList.add('js-drawer-open');
+        }
+      })
+      .catch(error => {
+        console.error('Error adding to cart or refreshing drawer:', error);
+      });
+    });
+  });
+});
+</script> -->
+
+<!-- <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to apply 50% discount when 3+ items are in cart
+  function applyDiscountIfNeeded() {
+    const cartItems = document.querySelectorAll('[data-cart-item]');
+    const itemCount = cartItems.length;
+
+    // Apply discount only if 3+ items
+    if (itemCount >= 3) {
+      cartItems.forEach(item => {
+        const priceElement = item.querySelector('[data-cart-item-price]');
+        const originalPrice = parseFloat(priceElement.dataset.originalPrice || priceElement.textContent.replace(/[^0-9.]/g, ''));
+        const discountedPrice = (originalPrice * 0.5).toFixed(2);
+        
+        // Update displayed price
+        priceElement.textContent = `$${discountedPrice}`;
+        
+        // Save original price in case cart updates
+        priceElement.dataset.originalPrice = originalPrice;
+      });
+    } else {
+      // Reset prices if less than 3 items
+      cartItems.forEach(item => {
+        const priceElement = item.querySelector('[data-cart-item-price]');
+        if (priceElement.dataset.originalPrice) {
+          priceElement.textContent = `$${parseFloat(priceElement.dataset.originalPrice).toFixed(2)}`;
+        }
+      });
+    }
+  }
+
+  // Run on initial load
+  applyDiscountIfNeeded();
+
+  // Listen for Shopify cart updates (AJAX)
+  document.addEventListener('ajaxCart:afterUpdate', applyDiscountIfNeeded);
+});
+</script> -->
+
+<!-- Dynamic Prices -->
+    <!-- <script>
+   (function () {
+  async function checkAndUpdatePrices() {
+    try {
+      const response = await fetch('/cart.js');
+      const cart = await response.json();
+      const totalQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+      const priceElements = document.querySelectorAll('span.price-item.price-item--regular, span.price-item.price-item--sale.price-item--last, p.modal-pricing, product-recommendations.related-products span.sale-price');
+
+      const formatter = new Intl.NumberFormat('da-DK', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      priceElements.forEach(el => {
+        const rawText = el.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+        const originalPrice = parseFloat(el.dataset.originalPrice || rawText);
+
+        if (totalQuantity >= 3) {
+          if (!el.dataset.originalPrice) {
+            el.dataset.originalPrice = originalPrice;
+          }
+          const discounted = originalPrice * 0.9;
+          el.innerHTML = `
+            <span style="text-decoration: line-through; color: #c8202f; margin-right: 6px;">
+              ${formatter.format(originalPrice)} NOK
+            </span>
+            <span style="color: #004d43; font-weight: bold;">
+              ${formatter.format(discounted)} NOK
+            </span>
+          `;
+        } else if (el.dataset.originalPrice) {
+          el.textContent = formatter.format(parseFloat(el.dataset.originalPrice)) + ' NOK';
+          delete el.dataset.originalPrice;
+        }
+      });
+
+      console.log(`Checked cart. Total quantity: ${totalQuantity}.`);
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+    }
+  }
+
+  checkAndUpdatePrices();
+  setInterval(checkAndUpdatePrices, 1000);
+})();
+
+
+    </script>
+ -->
+    <script>
+
+
+
+
+      
+(function () {
+  async function checkAndUpdatePrices() {
+    try {
+      const response = await fetch('/cart.js');
+      const cart = await response.json();
+      const totalQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+      const priceElements = document.querySelectorAll('span.price-item.price-item--regular, span.price-item.price-item--sale.price-item--last, p.modal-pricing, product-recommendations.related-products span.sale-price, span.price-item.price-item--sale.price-item--last, p.cart-item-price, .sticky-price-product-custom');
+
+      const formatter = new Intl.NumberFormat('da-DK', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      // Determine discount percentage based on quantity
+      let discount = 0;
+      if (totalQuantity >= 5) {
+        discount = 0.25;
+      } else if (totalQuantity >= 4) {
+        discount = 0.20;
+      } else if (totalQuantity >= 3) {
+        discount = 0.15;
+      } else if (totalQuantity >= 2) {
+        discount = 0.10;
+      }
+
+      priceElements.forEach(el => {
+        // const rawText = el.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+        const rawText = el.textContent
+        .replace(/[^\d,.-]/g, '')  // Strip NOK, spaces, currency symbols
+        .replace(/\./g, '')        // Remove thousands separator
+        .replace(',', '.');        // Convert decimal to JS format
+        
+        const originalPrice = parseFloat(el.dataset.originalPrice || rawText);
+
+        if (discount > 0) {
+          if (!el.dataset.originalPrice) {
+            el.dataset.originalPrice = originalPrice;
+          }
+          const discounted = originalPrice * (1 - discount);
+          el.innerHTML = `
+            <span style="text-decoration: line-through; color: #5FB3C4; margin-right: 6px;" class="{{ product.title}}">
+              ${formatter.format(originalPrice)} NOK
+            </span>
+            <span style="color: #00514E; font-weight: bold; class="{{ product.title}}">
+              ${formatter.format(discounted)} NOK
+            </span>
+          `;
+        } else if (el.dataset.originalPrice) {
+          el.textContent = `${formatter.format(parseFloat(el.dataset.originalPrice))} NOK`;
+          // el.textContent = formatter.format(parseFloat(el.dataset.originalPrice)) + ' NOK';
+          delete el.dataset.originalPrice;
+        }
+      });
+
+      console.log(`Checked cart. Total quantity: ${totalQuantity}, Discount: ${discount * 100}%`);
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+    }
+  }
+
+  checkAndUpdatePrices();
+  setInterval(checkAndUpdatePrices, 1000);
+})();
+
+
+
+
+
+      
+</script>
+
+
+{% comment %} <script>
+  // ---------- PRODUCT PAGE BADGE ----------
+  function setWashPrice(count) {
+    const wrapper = document.querySelector('.product-wash-price-badge');
+    if (!wrapper) return;
+
+    // Read metafields for this product
+    const wash1 = wrapper.dataset.wash1;
+    const wash2 = wrapper.dataset.wash2;
+    const wash3 = wrapper.dataset.wash3;
+    const wash4 = wrapper.dataset.wash4;
+
+    let text = '';
+    if (count === 0 && wash1) {
+      text = wash1;
+    } else if (count === 1 && wash2) {
+      text = wash2;
+    } else if (count === 2 && wash3) {
+      text = wash3;
+    } else if (wash4) {
+      text = wash4;
+    }
+
+    if (!text) return; // no metafield set → skip
+
+    // Remove old badge(s)
+    document.querySelectorAll('.wash-price-badge, .wash-price-text-2').forEach(el => el.remove());
+
+    // Add badge inside product media list
+    const ul = document.querySelector('ul.product__media-list.contains-media');
+    if (ul) {
+      const badge1 = document.createElement('li');
+      badge1.className = 'wash-price-badge';
+      badge1.textContent = "Pris per vask ned til " + text;
+      ul.appendChild(badge1);
+    }
+
+    // Add text after price div
+    const targetDiv2 = document.querySelector('.price.price--large.price--show-badge');
+    if (targetDiv2) {
+      const badge3 = document.createElement('div');
+      badge3.className = 'wash-price-text-2';
+      badge3.textContent = "Pris per vask ned til " + text;
+      targetDiv2.insertAdjacentElement('afterend', badge3);
+    }
+  }
+
+  async function updateWashPriceBadge() {
+    try {
+      const res = await fetch('/cart.js');
+      const cart = await res.json();
+      setWashPrice(cart.item_count);
+    } catch (e) {
+      console.error('Badge update error:', e);
+    }
+  }
+
+  // ---------- COLLECTIONS / RELATED PRODUCTS ----------
+  function addWashBadges() {
+    const cardMediaDivs = document.querySelectorAll('.card__media');
+
+    cardMediaDivs.forEach((cardMedia) => {
+      // remove old badge
+      const oldBadge = cardMedia.querySelector('.wash-price-badge');
+      if (oldBadge) oldBadge.remove();
+
+      // read metafields from data attributes
+      const wash1 = cardMedia.dataset.wash1;
+      const wash2 = cardMedia.dataset.wash2;
+      const wash3 = cardMedia.dataset.wash3;
+      const wash4 = cardMedia.dataset.wash4;
+
+      // Pick the first available value
+      const washText = wash1 || wash2 || wash3 || wash4;
+
+      if (washText) {
+        // create new badge
+        const badge = document.createElement('div');
+        badge.className = 'wash-price-badge';
+        badge.textContent = "Pris per vask ned til " + washText;
+
+        // ensure relative positioning
+        cardMedia.style.position = "relative";
+        cardMedia.appendChild(badge);
+      }
+    });
+  }
+
+  // Run everything
+  document.addEventListener('DOMContentLoaded', () => {
+    updateWashPriceBadge();
+    setInterval(updateWashPriceBadge, 1000);
+    addWashBadges();
+  });
+</script> {% endcomment %}
+
+
+{% comment %} <script>
+  // ---------- PRODUCT PAGE BADGE ----------
+  function setWashPrice(count) {
+    const wrapper = document.querySelector('.product-wash-price-badge');
+    if (!wrapper) return;
+
+    // Read metafields for this product
+    const wash1 = wrapper.dataset.wash1;
+    const wash2 = wrapper.dataset.wash2;
+    const wash3 = wrapper.dataset.wash3;
+    const wash4 = wrapper.dataset.wash4;
+
+    let text = '';
+    if (count === 0 && wash4) {
+      text = wash4;
+    } else if (count === 1 && wash4) {
+      text = wash4;
+    } else if (count === 2 && wash4) {
+      text = wash4;
+    } else if (wash4) {
+      text = wash4;
+    }
+
+    if (!text) return; // no metafield set → skip
+
+    // Remove old badge(s)
+    document.querySelectorAll('.wash-price-badge, .wash-price-text-2').forEach(el => el.remove());
+
+    // Add badge inside product media list
+    const ul = document.querySelector('ul.product__media-list.contains-media');
+    if (ul) {
+      const badge1 = document.createElement('li');
+      badge1.className = 'wash-price-badge';
+      badge1.textContent = "Pris per vask ned til " + text;
+      ul.appendChild(badge1);
+    }
+
+    // Add text after price div
+    const targetDiv2 = document.querySelector('.price.price--large.price--show-badge');
+    if (targetDiv2) {
+      const badge3 = document.createElement('div');
+      badge3.className = 'wash-price-text-2';
+      badge3.textContent = "Pris per vask ned til " + text;
+      targetDiv2.insertAdjacentElement('afterend', badge3);
+    }
+  }
+
+  async function updateWashPriceBadge() {
+    try {
+      const res = await fetch('/cart.js');
+      const cart = await res.json();
+      setWashPrice(cart.item_count);
+    } catch (e) {
+      console.error('Badge update error:', e);
+    }
+  }
+
+  // ---------- COLLECTIONS / RELATED PRODUCTS ----------
+  function addWashBadges() {
+    const cardMediaDivs = document.querySelectorAll('.card__media');
+
+    cardMediaDivs.forEach((cardMedia) => {
+      // remove old badge
+      const oldBadge = cardMedia.querySelector('.wash-price-badge');
+      if (oldBadge) oldBadge.remove();
+
+      // read metafields from data attributes
+      const wash1 = cardMedia.dataset.wash1;
+      const wash2 = cardMedia.dataset.wash2;
+      const wash3 = cardMedia.dataset.wash3;
+      const wash4 = cardMedia.dataset.wash4;
+
+      // Pick the first available value
+      const washText = wash1 || wash2 || wash3 || wash4;
+
+      if (washText) {
+        // create new badge
+        const badge = document.createElement('div');
+        badge.className = 'wash-price-badge';
+        badge.textContent = "Pris per vask ned til " + washText;
+
+        // ensure relative positioning
+        cardMedia.style.position = "relative";
+        cardMedia.appendChild(badge);
+      }
+    });
+  }
+
+  // Run everything
+  document.addEventListener('DOMContentLoaded', () => {
+    updateWashPriceBadge();
+    setInterval(updateWashPriceBadge, 1000);
+    addWashBadges();
+  });
+
+
+
+
+  
+</script>  {% endcomment %}
+{% comment %} 
+ <script>
+  // ---------- PRODUCT PAGE ----------
+  function setWashPrice() {
+    const wrapper = document.querySelector('.product-wash-price-badge');
+    if (!wrapper) return;
+
+    // Read wash4 metafield for this product
+    const wash4 = wrapper.dataset.wash4;
+
+    // If no value → skip
+    if (!wash4 || wash4.trim() === "") return;
+
+    // Remove old badge(s)
+    document.querySelectorAll('.wash-price-badge, .wash-price-text-2').forEach(el => el.remove());
+
+    // Add badge inside product media list
+    const ul = document.querySelector('ul.product__media-list.contains-media');
+    if (ul) {
+      const badge1 = document.createElement('li');
+      badge1.className = 'wash-price-badge';
+      badge1.textContent = "Pris per vask ned til " + wash4;
+      ul.appendChild(badge1);
+    }
+
+    // Add text after price div
+    const targetDiv2 = document.querySelector('');
+    if (targetDiv2) {
+      const badge3 = document.createElement('div');
+      badge3.className = 'wash-price-text-2';
+      badge3.textContent = "Pris per vask ned til " + wash4;
+      targetDiv2.insertAdjacentElement('afterend', badge3);
+    }
+  }
+
+  // ---------- COLLECTIONS / RELATED PRODUCTS ----------
+  function addWashBadges() {
+    const cardMediaDivs = document.querySelectorAll('.card__media');
+
+    cardMediaDivs.forEach((cardMedia) => {
+      // remove old badge
+      const oldBadge = cardMedia.querySelector('.wash-price-badge');
+      if (oldBadge) oldBadge.remove();
+
+      // read wash4 metafield for this product
+      const wash4 = cardMedia.dataset.wash4;
+
+      // If no value → skip
+      if (!wash4 || wash4.trim() === "") return;
+
+      // create new badge
+      const badge = document.createElement('div');
+      badge.className = 'wash-price-badge';
+      badge.textContent = "Pris per vask ned til " + wash4;
+
+      // ensure relative positioning
+      cardMedia.style.position = "relative";
+      cardMedia.appendChild(badge);
+    });
+  }
+
+  // Run everything
+  document.addEventListener('DOMContentLoaded', () => {
+    setWashPrice();
+    addWashBadges();
+    // optional auto refresh
+   
+  });
+</script>  {% endcomment %}
+{% comment %} 
+<div class="card__media"
+    data-wash1 ="{{ product.metafields.custom.wash_price_1 }}"
+     data-wash2="{{ product.metafields.custom.wash_price_2 }}"
+     data-wash3="{{ product.metafields.custom.wash_price_3 }}"
+     data-wash4="{{ product.metafields.custom.wash_price_4 }}"
+     data-wash5="{{ product.metafields.custom.wash_price_5 }}">
+  {{ card_media }}
+</div>   {% endcomment %}
+
+
+{% comment %} 
+<script>
+  // ---------- PRODUCT PAGE ----------
+  function setWashPrice() {
+    const wrapper = document.querySelector('.product-wash-price-badge');
+    if (!wrapper) return;
+
+    // Read both metafields
+    const wash5 = wrapper.dataset.wash5;
+    const wash4 = wrapper.dataset.wash4;
+
+    // Choose wash5 if available, else wash4
+    const washPrice = wash5 && wash5.trim() !== "" ? wash5 : wash4 && wash4.trim() !== "" ? wash4 : null;
+
+    // If no value → skip
+    if (!washPrice) return;
+
+    // Remove old badge(s)
+    document.querySelectorAll('.wash-price-badge, .wash-price-text-2').forEach(el => el.remove());
+
+    // Add badge inside product media list
+    const ul = document.querySelector('ul.product__media-list.contains-media');
+    if (ul) {
+      const badge1 = document.createElement('li');
+      badge1.className = 'wash-price-badge';
+      badge1.textContent = "Pris per vask ned til " + washPrice;
+      ul.appendChild(badge1);
+    }
+
+    // Add text after price div (optional)
+    const targetDiv2 = document.querySelector('.price__container');
+    if (targetDiv2) {
+      const badge3 = document.createElement('div');
+      badge3.className = 'wash-price-text-2';
+      badge3.textContent = "Pris per vask ned til " + washPrice;
+      targetDiv2.insertAdjacentElement('afterend', badge3);
+    }
+  }
+
+  // ---------- COLLECTIONS / RELATED PRODUCTS ----------
+  function addWashBadges() {
+    const cardMediaDivs = document.querySelectorAll('.card__media');
+
+    cardMediaDivs.forEach((cardMedia) => {
+      // remove old badge
+      const oldBadge = cardMedia.querySelector('.wash-price-badge');
+      if (oldBadge) oldBadge.remove();
+
+      // read both metafields
+      const wash5 = cardMedia.dataset.wash5;
+      const wash4 = cardMedia.dataset.wash4;
+
+      // choose wash5 if available, else wash4
+      const washPrice = wash5 && wash5.trim() !== "" ? wash5 : wash4 && wash4.trim() !== "" ? wash4 : null;
+
+      // skip if none
+      if (!washPrice) return;
+
+      // create new badge
+      const badge = document.createElement('div');
+      badge.className = 'wash-price-badge-collection';
+      badge.textContent = "Pris per vask ned til " + washPrice;
+
+      // ensure relative positioning
+      cardMedia.style.position = "relative";
+      cardMedia.appendChild(badge);
+    });
+  }
+
+  // Run everything
+  document.addEventListener('DOMContentLoaded', () => {
+    setWashPrice();
+    addWashBadges();
+  });
+</script> {% endcomment %}
+
+
+<script>
+  // ---------- PRODUCT PAGE ----------
+  function setWashPrice() {
+    const wrapper = document.querySelector('.product-wash-price-badge');
+    if (!wrapper) return;
+
+    // Read both metafields
+    const wash5 = wrapper.dataset.wash5;
+    const wash4 = wrapper.dataset.wash4;
+
+    // Choose wash5 if available, else wash4
+    const washPrice = wash5 && wash5.trim() !== "" ? wash5 : wash4 && wash4.trim() !== "" ? wash4 : null;
+
+    // If no value → skip
+    if (!washPrice) return;
+
+    // Remove old badge(s)
+    document.querySelectorAll('.wash-price-badge, .wash-price-text-2').forEach(el => el.remove());
+
+    // Add badge inside product media list
+    const ul = document.querySelector('.price__container');
+    if (ul) {
+      const badge1 = document.createElement('li');
+      badge1.className = 'wash-price-badge';
+      badge1.textContent = "Pris per vask ned til " + washPrice;
+      ul.appendChild(badge1);
+    }
+
+    // Add text after price div (optional)
+    const targetDiv2 = document.querySelector('.price__container');
+    if (targetDiv2) {
+      const badge3 = document.createElement('div');
+      badge3.className = 'wash-price-text-2';
+      badge3.textContent = "Pris per vask ned til " + washPrice;
+      targetDiv2.insertAdjacentElement('afterend', badge3);
+    }
+  }
+
+  // ---------- COLLECTIONS / RELATED PRODUCTS ----------
+  function addWashBadges() {
+    const cardMediaDivs = document.querySelectorAll('.card__media');
+
+    cardMediaDivs.forEach((cardMedia) => {
+      // remove old badge
+      const oldBadge = cardMedia.querySelector('.wash-price-badge');
+      if (oldBadge) oldBadge.remove();
+
+      // read both metafields
+      const wash5 = cardMedia.dataset.wash5;
+      const wash4 = cardMedia.dataset.wash4;
+
+      // choose wash5 if available, else wash4
+      const washPrice = wash5 && wash5.trim() !== "" ? wash5 : wash4 && wash4.trim() !== "" ? wash4 : null;
+
+      // skip if none
+      if (!washPrice) return;
+
+      // create new badge
+      const badge = document.createElement('div');
+      badge.className = 'wash-price-badge-collection';
+      badge.textContent = "Pris per vask ned til " + washPrice;
+
+      // ensure relative positioning
+      cardMedia.style.position = "relative";
+      cardMedia.appendChild(badge);
+    });
+  }
+
+  // Run everything
+  document.addEventListener('DOMContentLoaded', () => {
+    setWashPrice();
+    addWashBadges();
+  });
+</script>
+
+
+
+<!-- Add this to product card -->
+<div class="card__media"
+     data-wash1="{{ product.metafields.custom.wash_price_1 }}"
+     data-wash2="{{ product.metafields.custom.wash_price_2 }}"
+     data-wash3="{{ product.metafields.custom.wash_price_3 }}"
+     data-wash4="{{ product.metafields.custom.wash_price_4 }}"
+     data-wash5="{{ product.metafields.custom.wash_price_5 }}">
+  {{ card_media }}
+</div>
+
+<!-- Add this to product page -->
+<div class="product-wash-price-badge"
+     data-wash4="{{ product.metafields.custom.wash_price_4 }}"
+     data-wash5="{{ product.metafields.custom.wash_price_5 }}">
+</div>
+
+
+
+
+<!-- Add this to product page -->
+<div class="product-wash-price-badge"
+     data-wash4="{{ product.metafields.custom.wash_price_4 }}"
+     data-wash5="{{ product.metafields.custom.wash_price_5 }}">
+</div>
+
+
+
+
+{% comment %} <div
+  class="card__media"
+  data-wash4="{{ product.metafields.custom.wash_price_4 | default: '' }}"
+  data-wash5="{{ product.metafields.custom.wash_price_5 | default: '' }}">
+</div> {% endcomment %}
+
+
+
+ {% comment %} <div class="card__media"
+     data-wash1="{{ product.metafields.custom.wash_price_1 }}"
+     data-wash2="{{ product.metafields.custom.wash_price_2 }}"
+     data-wash3="{{ product.metafields.custom.wash_price_3 }}"
+     data-wash4="{{ product.metafields.custom.wash_price_4 }}"
+    data-wash5="{{ product.metafields.custom.wash_price_5 }}">
+  {{ card_media }}
+</div>  {% endcomment %}
+
+<div 
+  class="product-wash-price-badge" 
+  data-wash4="{{ product.metafields.custom.wash_price_4 }}" 
+  data-wash5="{{ product.metafields.custom.wash_price_5 }}">
+</div>
+
+
+
+      <!-- CArt Drawer Refresh Code  -->
+
+  <script>
+  (function () {
+    async function updateCartDrawer() {
+      try {
+        const res = await fetch('/cart.js');
+        const cart = await res.json();
+
+        const tbody = document.querySelector('#CartDrawer-CartItems .cart-items tbody');
+        const totalEl = document.querySelector('.totals__total-value');
+
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        cart.items.forEach((item, index) => {
+          const linePrice = (item.final_line_price / 100).toLocaleString('da-DK', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+
+          const quantity = item.quantity;
+          const originalPrice = (item.original_price / 100).toLocaleString('da-DK', {
+            minimumFractionDigits: 2
+          });
+
+          const originalPriceWithQty = item.original_price / 100;
+          const originalTotalPrice = (originalPriceWithQty * quantity).toLocaleString('da-DK', {
+            minimumFractionDigits: 2
+          });
+
+          const discountMarkup = item.discounts.length > 0
+            ? `<ul class="discounts list-unstyled" role="list" aria-label="Discounts">
+                ${item.discounts.map(discount => `
+                  <li class="discounts__discount">
+                    <svg class="icon icon-discount" viewBox="0 0 12 12">
+                      <path fill="currentColor" fill-rule="evenodd" d="M7 0h3a2 2 0 0 1 2 2v3a1 1 0 0 1-.3.7l-6 6a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4l6-6A1 1 0 0 1 7 0m2 2a1 1 0 1 0 2 0 1 1 0 0 0-2 0" clip-rule="evenodd"></path>
+                    </svg>
+                    ${discount.title}
+                  </li>`).join('')}
+              </ul>`
+            : '';
+
+          const row = `
+            <tr class="cart-item" id="CartDrawer-Item-${index + 1}" role="row">
+              <td class="cart-item__media" role="cell">
+                <a href="${item.url}" class="cart-item__link" tabindex="-1" aria-hidden="true"></a>
+                <img class="cart-item__image" src="${item.image}" alt="${item.title}" loading="lazy" width="150" height="150">
+              </td>
+              <td class="cart-item__details" role="cell">
+                <a href="${item.url}" class="cart-item__name h4 break">${item.title}</a>
+                <div class="product-option">${originalPrice} kr</div>
+                ${item.options_with_values.map(opt => `
+                  <div class="product-option">
+                    <dt>${opt.name}:</dt>
+                    <dd>${opt.value}</dd>
+                  </div>`).join('')}
+                ${discountMarkup}
+              </td>
+              <td class="cart-item__totals right" role="cell">
+                <div class="cart-item__price-wrapper">
+                <s class="cart-item__old-price price price--end two">
+                                  ${originalTotalPrice} kr
+                                </s>
+                  <span class="price price--end">${linePrice} kr</span>
+                </div>
+              </td>
+              <td class="cart-item__quantity" role="cell">
+                <div class="cart-item__quantity-wrapper quantity-popover-wrapper">
+                  <div class="quantity-popover-container">
+                    <div class="quantity cart-quantity">
+                      <button type="button" class="quantity__button" data-key="${item.key}" data-action="decrease">-</button>
+                      <input class="quantity__input" type="number" value="${item.quantity}" min="1" readonly>
+                      <button type="button" class="quantity__button" data-key="${item.key}" data-action="increase">+</button>
+                    </div>
+                    <cart-remove-button id="CartDrawer-Remove-${index + 1}" data-index="${index + 1}">
+                      <button type="button" class="button button--tertiary cart-remove-button"
+                              aria-label="Remove ${item.title}" data-variant-id="${item.variant_id}" data-key="${item.key}">
+                        <span class="svg-wrapper">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-remove" viewBox="0 0 16 16">
+                            <path fill="currentColor" d="M14 3h-3.53a3.07 3.07 0 0 0-.6-1.65C9.44.82 8.8.5 8 .5s-1.44.32-1.87.85A3.06 3.06 0 0 0 5.53 3H2a.5.5 0 0 0 0 1h1.25v10c0 .28.22.5.5.5h8.5a.5.5 0 0 0 .5-.5V4H14a.5.5 0 0 0 0-1M6.91 1.98c.23-.29.58-.48 1.09-.48s.85.19 1.09.48c.2.24.3.6.36 1.02h-2.9c.05-.42.17-.78.36-1.02m4.84 11.52h-7.5V4h7.5z"/>
+                            <path fill="currentColor" d="M6.55 5.25a.5.5 0 0 0-.5.5v6a.5.5 0 0 0 1 0v-6a.5.5 0 0 0-.5-.5m2.9 0a.5.5 0 0 0-.5.5v6a.5.5 0 0 0 1 0v-6a.5.5 0 0 0-.5-.5"/>
+                          </svg>
+                        </span>
+                      </button>
+                    </cart-remove-button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `;
+
+          tbody.insertAdjacentHTML('beforeend', row);
+        });
+
+        if (totalEl) {
+          totalEl.textContent = (cart.total_price / 100).toLocaleString('da-DK', {
+            minimumFractionDigits: 2
+          }) + ' kr';
+        }
+
+        document.querySelectorAll('.quantity__button').forEach(button => {
+          button.addEventListener('click', async () => {
+            const key = button.dataset.key;
+            const action = button.dataset.action;
+            const input = button.parentElement.querySelector('.quantity__input');
+            const currentQty = parseInt(input.value);
+            let newQty = action === 'increase' ? currentQty + 1 : currentQty - 1;
+            if (newQty < 1) newQty = 1;
+
+            await fetch('/cart/change.js', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({ id: key, quantity: newQty })
+            });
+
+            updateCartDrawer();
+          });
+        });
+
+        document.querySelectorAll('.cart-remove-button').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const key = btn.dataset.key;
+            await fetch('/cart/change.js', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({ id: key, quantity: 0 })
+            });
+
+            updateCartDrawer();
+          });
+        });
+
+      } catch (err) {
+        console.error('Error updating cart drawer:', err);
+      }
+    }
+
+    updateCartDrawer();
+    {% comment %} setInterval(updateCartDrawer, 1000); {% endcomment %}
+  })();
+  </script>
+
+<!-- <script>
+  document.addEventListener('cart:updated', function () {
+    fetch(window.location.pathname + '?section_id=cart-drawer')
+      .then(res => res.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newDrawer = doc.querySelector('#CartDrawer');
+        const currentDrawer = document.querySelector('#CartDrawer');
+        if (newDrawer && currentDrawer) {
+          currentDrawer.innerHTML = newDrawer.innerHTML;
+          console.log('Cart drawer updated!');
+        }
+      });
+  });
+</script> -->
+
+    <!-- For product page when user click add to cart it will never redirect -->
+<script>
+{% comment %} document.addEventListener('DOMContentLoaded', function () {
+  const productForms = document.querySelectorAll('form[action="/cart/add"]');
+
+  productForms.forEach((form) => {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const submitButton = form.querySelector('[type="submit"]');
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Product added:', data);
+
+        // ✅ Change button text to "Added"
+        if (submitButton) {
+          submitButton.textContent = 'Lagt til';
+          submitButton.disabled = true;
+
+          // Optional: Revert back after 3 seconds
+          setTimeout(() => {
+            submitButton.textContent = 'Legg i handlekurv';
+            submitButton.disabled = false;
+          }, 3000);
+        }
+
+        // Optional: Open cart drawer
+        // document.querySelector('cart-notification')?.renderContents(data);
+      })
+      .catch((error) => {
+        console.error('Error adding product:', error);
+      });
+    });
+  });
+}); {% endcomment %}
+
+// Z-index apply in progress bar when dropdown open
+
+  {% comment %} document.addEventListener('DOMContentLoaded', function () {
+  const summary = document.querySelector('summary#HeaderMenu-alle-produkter');
+  const headerSection = document.querySelector('.shopify-section.shopify-section-group-header-group.section');
+
+  if (summary && headerSection) {
+    summary.addEventListener('click', function () {
+      const isExpanded = summary.getAttribute('aria-expanded') === 'true';
+      
+      // Wait a moment for the DOM to reflect state change
+      setTimeout(() => {
+        if (summary.getAttribute('aria-expanded') === 'true') {
+          headerSection.style.zIndex = '0';
+          headerSection.style.position = 'relative';
+        } else {
+          headerSection.style.zIndex = '0';
+        }
+      }, 50);
+    });
+  }
+});
+
+
+
+  
+
+</script> {% endcomment %}
+
+ 
+    {%- if settings.predictive_search_enabled -%}
+      <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- if settings.cart_type == 'drawer' -%}
+      <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+{% comment %} 
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.CartDrawer) {
+    const proto = window.CartDrawer.prototype;
+    const originalRender = proto.renderContents;
+
+    proto.renderContents = function(parsedState) {
+      // Call original method
+      originalRender.call(this, parsedState);
+
+      // 🔥 Prevent drawer from opening
+      this.classList.remove('active');
+      document.body.classList.remove('overflow-hidden');
+    };
+  }
+});
+</script> {% endcomment %}
+
+<script src="https://partnertrackshopify.dk/js/register.js" async></script>
+
+     {% comment %} Cookie add image Script {% endcomment %}
+     
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function () {
+    const modal = document.querySelector("#shopify-pc__banner");
+    if (modal) {
+      // Create overlay
+      const overlay = document.createElement("div");
+      overlay.id = "shopify-pc-overlay";
+      document.body.appendChild(overlay);
+
+      // Show overlay when modal is visible
+      const observer = new MutationObserver(() => {
+        if (modal.style.display !== "none") {
+          overlay.style.display = "block";
+        } else {
+          overlay.style.display = "none";
+        }
+      });
+
+      observer.observe(modal, { attributes: true, attributeFilter: ["style"] });
+    }
+  }, 2000); // delay 2 seconds
+});
+
+
+ </script> 
+
+<script>
+ function allConsentGranted() {
+  gtag('consent', 'update', {
+    'ad_user_data': 'granted',
+    'ad_personalization': 'granted',
+    'ad_storage': 'granted',
+    'analytics_storage': 'granted',
+    'functionality_storage': 'granted',
+    'security_storage': 'granted',
+    'personalization_storage': 'granted'
+  });
+}
+
+document.addEventListener("click", function (event) {
+  const acceptButton = event.target.closest("button#shopify-pc__banner__btn-accept");
+  if (!acceptButton) return;
+
+  if (typeof allConsentGranted === "function") {
+    allConsentGranted();
+  }
+
+  setTimeout(() => {
+    if (window.dataLayer && Array.isArray(window.dataLayer)) {
+      // Check both object-style and array-style pushes
+      const lastConsent = [...window.dataLayer].reverse().find(
+        (item) =>
+          (Array.isArray(item) && item[0] === "consent" && item[1] === "update") ||
+          (item.consent && item.consent.update)
+      );
+
+      if (lastConsent) {
+        console.log("✅ Last consent update found:", lastConsent);
+      } else {
+        console.log("⚠️ No consent update found in dataLayer yet.");
+        console.log("Current dataLayer:", window.dataLayer);
+      }
+    } else {
+      console.warn("dataLayer not available.");
+    }
+  }, 500);
+});
+
+ document.addEventListener('click', function (event) {
+  if (event.target && event.target.id === 'shopify-pc__prefs__header-accept') {
+    allConsentGranted();
+
+    if (window.dataLayer) {
+      const lastConsent = [...window.dataLayer].reverse()
+        .find(item => item.consent && item.consent.update);
+
+      if (lastConsent) {
+        console.log("Last consent update:", lastConsent);
+      } else {
+        console.log("No consent update found in dataLayer yet.");
+      }
+    } else {
+      console.warn("dataLayer not available.");
+    }
+  }
+});
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

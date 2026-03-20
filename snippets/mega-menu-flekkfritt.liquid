@@ -1,0 +1,410 @@
+{% comment %} <style>
+/* Wrapper */
+.mega-slider-wrapper {
+  position: relative;
+  padding: 20px 40px;
+}
+
+/* Slider */
+.mega-slider {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.mega-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card – EXACT LOOK */
+.mega-card {
+  flex: 0 0 calc((100% - 48px) / 4);
+  background: #ffffff;
+  {% comment %} border: 1px solid #e6e6e6; {% endcomment %}
+  border-radius: 10px;
+  overflow: hidden;
+}
+ul#megaSlider {
+    padding-left: 0;
+}
+.mega-card a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: #000;
+}
+
+/* Image area */
+.mega-card__image {
+  {% comment %} padding: 20px; {% endcomment %}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+      border-radius: 20px;
+    border: 1px solid #00514E;
+}
+
+.mega-card__image img {
+  max-width: 100%;
+      border-radius: 20px;
+  height: auto;
+}
+
+/* Footer */
+.mega-card__footer {
+  padding: 12px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+    gap: 10px;
+}
+
+/* Arrow inside card */
+.mega-arrow {
+  font-size: 16px;
+}
+
+/* Slider arrows (left/right) */
+.mega-slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #00514E;
+  background: #fff;
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+    align-items: normal;
+    justify-content: center;
+  z-index: 5;
+}
+
+.mega-slider-btn.prev {
+  left: 20px;
+}
+
+.mega-slider-btn.next {
+  right: 20px;
+}
+
+/* Hover (subtle like screenshot) */
+.mega-slider-btn:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .mega-card {
+    flex: 0 0 calc((100% - 16px) / 2);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .mega-card {
+    flex: 0 0 85%;
+  }
+
+  .mega-slider-wrapper {
+    padding: 20px 10px;
+  }
+}
+
+div#MegaMenu-Content-2 {
+    max-width: 1280px;
+    margin: auto;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+        padding: 0 80px;
+            position: absolute;
+    top: 64px;
+    z-index: 1;
+}
+.mega-card__image img {
+    width: 100%;
+}
+span.mega-arrow img {
+    width: 20px;
+    display: flex;
+    align-items: center;
+}
+</style>
+<div class="mega-slider-wrapper">
+  <button class="mega-slider-btn prev" aria-label="Previous">
+    ‹
+  </button>
+
+  <ul class="mega-slider" id="megaSlider">
+
+    {% assign collections_list = "Duftforsterker,Vaskemiddel,Baderom,Universal,Gulvvask" | split: "," %}
+
+    {% for handle in collections_list %}
+      {% assign col = collections[handle] %}
+      {% if col %}
+        <li class="mega-card">
+          <a href="{{ col.url }}">
+            <div class="mega-card__image">
+              {% if col.featured_image %}
+                <img
+                  src="{{ col.featured_image | image_url: width: 420 }}"
+                  alt="{{ col.title | escape }}"
+                  loading="lazy"
+                >
+              {% endif %}
+            </div>
+
+            <div class="mega-card__footer">
+              <span>{{ col.title }}</span>
+              <span class="mega-arrow"><img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/left-arrow-svgrepo-com.svg?v=1767982474"/></span>
+            </div>
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+  </ul>
+
+  <button class="mega-slider-btn next" aria-label="Next">
+    ›
+  </button>
+</div>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const slider = document.getElementById('megaSlider');
+  if (!slider) return;
+
+  const getScroll = () => {
+    const card = slider.querySelector('.mega-card');
+    return card ? card.offsetWidth + 16 : 0;
+  };
+
+  document.querySelector('.mega-slider-btn.next')?.addEventListener('click', () => {
+    slider.scrollBy({ left: getScroll(), behavior: 'smooth' });
+  });
+
+  document.querySelector('.mega-slider-btn.prev')?.addEventListener('click', () => {
+    slider.scrollBy({ left: -getScroll(), behavior: 'smooth' });
+  });
+});
+</script>
+ {% endcomment %}
+
+
+
+
+ <style>
+/* ===============================
+   MEGA SLIDER STYLES
+================================ */
+
+.mega-slider-wrapper {
+  position: relative;
+  padding: 20px 40px;
+  overflow: hidden;
+}
+
+/* Slider */
+.mega-slider {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  justify-content: flex-start;
+}
+
+.mega-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card */
+.mega-card {
+  flex: 0 0 calc((100% - 48px) / 4);
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mega-card a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: #000;
+}
+
+/* Image */
+.mega-card__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  border: 1px solid #00514E;
+}
+
+.mega-card__image img {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+/* Footer */
+.mega-card__footer {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  gap: 10px;
+}
+
+.mega-arrow img {
+  width: 20px;
+  display: block;
+}
+
+/* Slider Buttons */
+.mega-slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #00514E;
+  background: #fff;
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.mega-slider-btn.prev {
+  left: 0;
+}
+
+.mega-slider-btn.next {
+  right: 0;
+}
+
+.mega-slider-btn:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .mega-card {
+    flex: 0 0 calc((100% - 16px) / 2);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .mega-card {
+    flex: 0 0 85%;
+  }
+
+  .mega-slider-wrapper {
+    padding: 20px 10px;
+  }
+}
+</style>
+
+<div class="mega-slider-wrapper">
+  <button class="mega-slider-btn prev" aria-label="Previous">‹</button>
+
+  <ul class="mega-slider" id="megaSlider">
+    {% assign collections_list = "mixer,flekkfritt-collection,laundry-sheets,toymykner,laundry-detergent-pods,scent-booster-pods,torketrommelark,gulvvask" | split: "," %}
+
+    {% for handle in collections_list %}
+      {% assign col = collections[handle] %}
+      {% if col %}
+        <li class="mega-card">
+          <a href="{{ col.url }}">
+            <div class="mega-card__image">
+              {% if col.featured_image %}
+                <img
+                  src="{{ col.featured_image | image_url: width: 420 }}"
+                  alt="{{ col.title | escape }}"
+                  loading="lazy"
+                >
+              {% endif %}
+            </div>
+
+            <div class="mega-card__footer">
+              <span>{{ col.title }}</span>
+              <span class="mega-arrow">
+                <img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/left-arrow-svgrepo-com.svg?v=1767982474" alt="">
+              </span>
+            </div>
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  <button class="mega-slider-btn next" aria-label="Next">›</button>
+</div>
+
+<script>
+(function () {
+  function initMegaSlider() {
+    const slider = document.getElementById('megaSlider');
+    const nextBtn = document.querySelector('.mega-slider-btn.next');
+    const prevBtn = document.querySelector('.mega-slider-btn.prev');
+
+    if (!slider || !nextBtn || !prevBtn) return;
+
+    const getScrollAmount = () => {
+      const card = slider.querySelector('.mega-card');
+      return card ? card.offsetWidth + 16 : 300;
+    };
+
+    nextBtn.onclick = function (e) {
+      e.preventDefault();
+      e.stopPropagation(); // IMPORTANT for mega menu
+      slider.scrollBy({
+        left: getScrollAmount(),
+        behavior: 'smooth'
+      });
+    };
+
+    prevBtn.onclick = function (e) {
+      e.preventDefault();
+      e.stopPropagation(); // IMPORTANT for mega menu
+      slider.scrollBy({
+        left: -getScrollAmount(),
+        behavior: 'smooth'
+      });
+    };
+  }
+
+  /* Run immediately */
+  initMegaSlider();
+
+  /* Run again when mega menu opens (Shopify-safe) */
+  document.addEventListener('mouseover', function () {
+    initMegaSlider();
+  });
+})();
+</script>
+

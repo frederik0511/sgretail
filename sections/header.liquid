@@ -1,0 +1,2702 @@
+{% comment %} <link rel="stylesheet" href="{{ 'component-list-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+<link
+  rel="stylesheet"
+  href="{{ 'component-cart-notification.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+
+{%- if settings.predictive_search_enabled -%}
+  <link rel="stylesheet" href="{{ 'component-price.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+{%- if section.settings.menu_type_desktop == 'mega' -%}
+  <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+<style>
+  header-drawer {
+    justify-self: start;
+    margin-left: -1.2rem;
+  }
+
+  {%- if section.settings.sticky_header_type == 'reduce-logo-size' -%}
+    .scrolled-past-header .header__heading-logo-wrapper {
+      width: 75%;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.menu_type_desktop != "drawer" -%}
+    @media screen and (min-width: 990px) {
+      header-drawer {
+        display: none;
+      }
+    }
+  {%- endif -%}
+
+  .menu-drawer-container {
+    display: flex;
+  }
+
+  .list-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .list-menu--inline {
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  summary.list-menu__item {
+    padding-right: 2.7rem;
+  }
+
+  .list-menu__item {
+    display: flex;
+    align-items: center;
+    line-height: calc(1 + 0.3 / var(--font-body-scale));
+  }
+
+  .list-menu__item--link {
+    text-decoration: none;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+    line-height: calc(1 + 0.8 / var(--font-body-scale));
+  }
+
+  @media screen and (min-width: 750px) {
+    .list-menu__item--link {
+      padding-bottom: 0.5rem;
+      padding-top: 0.5rem;
+    }
+  }
+</style>
+
+{%- style -%}
+  .header {
+    padding: {{ section.settings.padding_top | times: 0.5 | round: 0 }}px 3rem {{ section.settings.padding_bottom | times: 0.5 | round: 0 }}px 3rem;
+  }
+
+  .section-header {
+    position: sticky; /* This is for fixing a Safari z-index issue. PR #2147 */
+    margin-bottom: {{ section.settings.margin_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-header {
+      margin-bottom: {{ section.settings.margin_bottom }}px;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .header {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<script src="{{ 'cart-notification.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  for block in section.blocks
+    if block.type == '@app'
+      assign has_app_block = true
+    endif
+  endfor
+-%}
+
+{% liquid
+  assign header_tag = 'div'
+
+  if section.settings.sticky_header_type != 'none'
+    assign header_tag = 'sticky-header'
+  endif
+%}
+
+<{{ header_tag }}
+  {% if header_tag == 'sticky-header' %}
+    data-sticky-type="{{ section.settings.sticky_header_type }}"
+  {% endif %}
+  class="header-wrapper color-{{ section.settings.color_scheme }} gradient{% if section.settings.show_line_separator %} header-wrapper--border-bottom{% endif %}"
+>
+  {%- liquid
+    assign social_links = false
+    assign localization_forms = false
+
+    if settings.social_twitter_link != blank or settings.social_facebook_link != blank or settings.social_pinterest_link != blank or settings.social_instagram_link != blank or settings.social_youtube_link != blank or settings.social_vimeo_link != blank or settings.social_tiktok_link != blank or settings.social_tumblr_link != blank or settings.social_snapchat_link != blank
+      assign social_links = true
+    endif
+
+    if localization.available_countries.size > 1 and section.settings.enable_country_selector or section.settings.enable_language_selector and localization.available_languages.size > 1
+      assign localization_forms = true
+    endif
+  -%}
+  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
+    {%- liquid
+      if section.settings.menu != blank
+        render 'header-drawer'
+      endif
+
+      if section.settings.logo_position == 'top-center' or section.settings.menu == blank
+        render 'header-search', input_id: 'Search-In-Modal-1'
+      endif
+    -%}
+
+    {%- if section.settings.logo_position != 'middle-center' -%}
+      {%- if request.page_type == 'index' -%}
+        <h1 class="header__heading">
+      {%- endif -%}
+      <a href="{{ routes.root_url }}" class="header__heading-link link link--text focus-inset">
+        {%- if settings.logo != blank -%}
+          <div class="header__heading-logo-wrapper">
+            {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+            {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+            {% capture sizes %}(max-width: {{ settings.logo_width | times: 2 }}px) 50vw, {{ settings.logo_width }}px{% endcapture %}
+            {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
+            {{
+              settings.logo
+              | image_url: width: 600
+              | image_tag:
+                class: 'header__heading-logo motion-reduce',
+                widths: widths,
+                height: logo_height,
+                width: settings.logo_width,
+                alt: logo_alt,
+                sizes: sizes,
+                preload: true
+            }}
+          </div>
+        {%- else -%}
+          <span class="h2">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+      {%- if request.page_type == 'index' -%}
+        </h1>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- liquid
+      if section.settings.menu != blank
+        if section.settings.menu_type_desktop == 'dropdown'
+          render 'header-dropdown-menu'
+        elsif section.settings.menu_type_desktop != 'drawer'
+          render 'header-mega-menu'
+        endif
+      endif
+    %}
+
+    {%- if section.settings.logo_position == 'middle-center' -%}
+      {%- if request.page_type == 'index' -%}
+        <h1 class="header__heading">
+      {%- endif -%}
+      <a href="{{ routes.root_url }}" class="header__heading-link link link--text focus-inset">
+        {%- if settings.logo != blank -%}
+          <div class="header__heading-logo-wrapper">
+            {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+            {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+            {% capture sizes %}(min-width: 750px) {{ settings.logo_width }}px, 50vw{% endcapture %}
+            {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
+            {{
+              settings.logo
+              | image_url: width: 600
+              | image_tag:
+                class: 'header__heading-logo',
+                widths: widths,
+                height: logo_height,
+                width: settings.logo_width,
+                alt: logo_alt,
+                sizes: sizes,
+                preload: true
+            }}
+          </div>
+        {%- else -%}
+          <span class="h2">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+      {%- if request.page_type == 'index' -%}
+        </h1>
+      {%- endif -%}
+    {%- endif -%}
+
+    <div class="header__icons{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} header__icons--localization header-localization{% endif %}">
+      {% assign total_savings = 0 %}
+
+{% for item in cart.items %}
+  {% assign item_discount = item.original_line_price | minus: item.final_line_price %}
+  {% assign total_savings = total_savings | plus: item_discount %}
+{% endfor %}
+
+
+{% comment %} {% if cart.items.size > 0 %}
+  {% assign total_savings = 0 %}
+
+  {% for item in cart.items %}
+    {% assign item_discount = item.original_line_price | minus: item.final_line_price %}
+    {% assign total_savings = total_savings | plus: item_discount %}
+  {% endfor %}
+
+  <div class="cart-savings-message">
+    Du har spart <span style="color:#00514E;">{{ total_savings | money_without_trailing_zeros }}</span>
+  </div>
+{% endif %} {% endcomment %}
+
+{% comment %} <div id="header-savings-wrapper">
+  {% if cart.items.size > 0 %}
+    {% assign total_savings = 0 %}
+    {% for item in cart.items %}
+      {% assign item_discount = item.original_line_price | minus: item.final_line_price %}
+      {% assign total_savings = total_savings | plus: item_discount %}
+    {% endfor %}
+    <div class="cart-savings-message" data-total-savings="{{ total_savings }}">
+      Du har spart <span style="color:#00514E;opacity:1">{{ total_savings | money_without_trailing_zeros }}</span>
+    </div>
+  {% else %}
+    <div class="cart-savings-message" data-total-savings="0" style="display:none;"></div>
+  {% endif %}
+</div>
+
+<script>
+(function() {
+  // 💡 Use Intl.NumberFormat for reliable formatting
+  const currencySymbol = 'kr'; // Change if needed (e.g. 'ISK', 'DKK', etc.)
+  const locale = 'is-IS'; // Icelandic locale gives "4.485 kr"
+
+  function formatMoney(cents) {
+    const amount = cents / 100;
+    // Format with local thousands separator & no decimals if .00
+    const formatted = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'ISK',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+
+    // Optional: ensure symbol spacing matches Shopify's style
+    return formatted.replace('ISK', currencySymbol).trim();
+  }
+
+  function updateSavingsMessage() {
+    fetch('/cart.js')
+      .then(res => res.json())
+      .then(cart => {
+        let totalSavings = 0;
+        cart.items.forEach(item => {
+          totalSavings += (item.original_line_price - item.final_line_price);
+        });
+
+        const formattedSavings = formatMoney(totalSavings);
+        console.log('💰 formattedSavings:', formattedSavings);
+
+        setTimeout(() => {
+          const wrapper = document.querySelector('#header-savings-wrapper');
+          if (!wrapper) return;
+
+          let savingsContainer = wrapper.querySelector('.cart-savings-message');
+          if (!savingsContainer) {
+            savingsContainer = document.createElement('div');
+            savingsContainer.classList.add('cart-savings-message');
+            wrapper.appendChild(savingsContainer);
+          }
+
+          if (totalSavings > 0 && cart.items.length > 0) {
+            savingsContainer.innerHTML = `Du har spart <span style="color:#00514E;opacity:1">${formattedSavings}</span>`;
+            savingsContainer.style.display = 'block';
+          } else {
+            savingsContainer.style.display = 'none';
+          }
+        }, 800);
+      })
+      .catch(err => console.error('Savings update error:', err));
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateSavingsMessage();
+
+    const origFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const res = await origFetch(...args);
+      if (args[0].includes('/cart/add') || args[0].includes('/cart/change') || args[0].includes('/cart/update')) {
+        setTimeout(updateSavingsMessage, 1000);
+      }
+      return res;
+    };
+
+    document.addEventListener('click', e => {
+      if (e.target.closest('[name="add"], .add-to-cart, .product-form__submit, .quick-add__submit')) {
+        setTimeout(updateSavingsMessage, 1000);
+      }
+    });
+  });
+})();
+</script> {% endcomment %}
+
+
+
+
+
+{% comment %} new code {% endcomment %}
+{% comment %} new code  {% endcomment %}
+{% if cart.items.size > 0 %}
+  {% assign total_savings = 0 %}
+
+  {% for item in cart.items %}
+    
+    {%- comment -%}
+    Shopify automatic & manual discount savings
+    {%- endcomment -%}
+    {% assign shopify_discount = item.original_line_price | minus: item.final_line_price %}
+
+    {%- comment -%}
+    Compare-at price savings ((compare_at - price) * quantity)
+    {%- endcomment -%}
+    {% assign compare_price = item.product.compare_at_price_max %}
+    {% assign base_price = item.product.price %}
+
+    {% if compare_price > base_price %}
+      {% assign compare_saving_single = compare_price | minus: base_price %}
+      {% assign compare_saving_total = compare_saving_single | times: item.quantity %}
+    {% else %}
+      {% assign compare_saving_total = 0 %}
+    {% endif %}
+
+    {%- comment -%}
+    Total savings per item
+    {%- endcomment -%}
+    {% assign total_item_saving = shopify_discount | plus: compare_saving_total %}
+
+    {%- comment -%}
+    Add item saving to the global total
+    {%- endcomment -%}
+    {% assign total_savings = total_savings | plus: total_item_saving %}
+
+  {% endfor %}
+
+  <div class="cart-savings-message cartSavingsMsgDrawer">
+    Du har spart <span style="color:#00514E;">{{ total_savings | money_without_trailing_zeros }}</span>
+  </div>
+
+{% endif %}
+
+
+  {% comment %} Language Popup {% endcomment %}
+
+ <!-- Trigger button (Norway flag) -->
+<button id="flag-btn" class="flag-btn">
+  <img src="https://cdn.shopify.com/s/files/1/0658/4595/2589/files/no.png?v=1758628084" alt="Norway" />
+</button>
+
+<!-- Popup -->
+<div id="flag-popup" class="flag-popup">
+  <div class="popup-content">
+    <span id="close-popup" class="close-btn">&times;</span>
+    <h3>Velg ditt land</h3>
+    <div class="flags">
+      <a href="https://flekkfritt.dk" class="flag-item">
+        <img src="https://cdn.shopify.com/s/files/1/0658/4595/2589/files/dk.png?v=1758628113" alt="Denmark" />
+        <span>Denmark</span>
+      </a>
+      <a href="https://flekkfritt.is" class="flag-item">
+        <img src="https://cdn.shopify.com/s/files/1/0658/4595/2589/files/is_aa12ab83-9e62-4dd0-a0d5-ce6af2445aec.png?v=1758628143" alt="Iceland" />
+        <span>Iceland</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+document.getElementById("flag-btn").onclick = function() {
+  document.getElementById("flag-popup").style.display = "block";
+};
+document.getElementById("close-popup").onclick = function() {
+  document.getElementById("flag-popup").style.display = "none";
+};
+window.onclick = function(event) {
+  if (event.target == document.getElementById("flag-popup")) {
+    document.getElementById("flag-popup").style.display = "none";
+  }
+};
+</script>
+
+
+
+
+{% comment %} <script>
+function updateSavingsMessage() {
+  fetch('/cart.js')
+    .then(res => res.json())
+    .then(cart => {
+      let savings = 0;
+
+      cart.items.forEach(item => {
+        savings += (item.original_line_price - item.final_line_price);
+      });
+
+      const container = document.querySelector('.cart-savings-message');
+
+      if (container) {
+        if (savings > 0) {
+          const nokSaved = (savings / 100).toFixed(2); // Convert from cents
+          container.innerHTML = `<p class="header-para small--hide">Du har spart <span style="color:#00514E;">${nokSaved}</span> kr </p>`;
+        } else {
+          container.innerHTML = ''; // Clear if no savings
+        }
+      }
+    });
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', updateSavingsMessage);
+
+// Run when cart updates via AJAX
+document.addEventListener('ajaxCart.afterCartUpdate', updateSavingsMessage);
+
+// Optional: poll every 5s as a fallback
+setInterval(updateSavingsMessage, 1000);
+</script> {% endcomment %}
+
+<div class="cart-savings-message"></div>
+
+      <!-- <p class="header-para small--hide">You have now saved <span style="color:#00514e;">XXX</span> nok</p> -->
+      <div class="desktop-localization-wrapper">
+        {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+          <localization-form class="small-hide medium-hide" data-prevent-hide>
+            {%- form 'localization', id: 'HeaderCountryForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="visually-hidden" id="HeaderCountryLabel">{{ 'localization.country_label' | t }}</h2>
+                {%- render 'country-localization', localPosition: 'HeaderCountry' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {% endif %}
+
+        {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+          <localization-form class="small-hide medium-hide" data-prevent-hide>
+            {%- form 'localization', id: 'HeaderLanguageForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="visually-hidden" id="HeaderLanguageLabel">{{ 'localization.language_label' | t }}</h2>
+                {%- render 'language-localization', localPosition: 'HeaderLanguage' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {%- endif -%}
+      </div>
+      {% render 'header-search', input_id: 'Search-In-Modal' %}
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a
+          href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+          class="header__icon header__icon--account link focus-inset{% if section.settings.menu != blank %} small-hide{% endif %}"
+          rel="nofollow"
+        >
+          {%- if section.settings.enable_customer_avatar -%}
+            <account-icon>
+              {%- if customer and customer.has_avatar? -%}
+                {{ customer | avatar }}
+              {%- else -%}
+                <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+              {%- endif -%}
+            </account-icon>
+          {%- else -%}
+            <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+          {%- endif -%}
+          <span class="visually-hidden">
+            {%- liquid
+              if customer
+                echo 'customer.account_fallback' | t
+              else
+                echo 'customer.log_in' | t
+              endif
+            -%}
+          </span>
+        </a>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            {% render block %}
+        {%- endcase -%}
+      {%- endfor -%}
+
+      <a href="{{ routes.cart_url }}" class="header__icon header__icon--cart link focus-inset" id="cart-icon-bubble">
+        {% if cart == empty %}
+          <span class="svg-wrapper">{{ 'cart-custom.svg' | inline_asset_content }}</span>
+        {% else %}
+          <span class="svg-wrapper">{{ 'cart-custom.svg' | inline_asset_content }}</span>
+        {% endif %}
+        <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+        {%- if cart != empty -%}
+          <div class="cart-count-bubble">
+
+            {%- if cart.item_count < 100 -%}
+              <span aria-hidden="true">{{ cart.item_count }}</span>
+            {%- endif -%}
+            <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+          </div>
+        {%- endif -%}
+      </a>
+    </div>
+  </header>
+
+
+  <!-- ✅ Progress Bar -->
+<div class="cart-progress-wrapper">
+  <div class="cartProgress">
+    <div class="milestones">
+      <div class="milestone">Kjøp 2<br><span>10 % rabatt</span></div>
+      <div class="milestone">Kjøp 3<br><span>15 % rabatt</span></div>
+      <div class="milestone">Kjøp 4<br><span>20 % rabatt</span></div>
+      <div class="milestone">Kjøp 5<br><span>25 % rabatt</span></div>
+    </div>
+    <div class="progress-bar-background">
+      <div class="progress-bar-fill" id="progressFill">
+        <div class="mascot" id="flekkenMascot"></div>
+        <span style="visibility: hidden;">Hello</span>
+      </div>
+    </div>
+    <p id="reward-message" style="text-align:center; font-weight: bold; color: #fff; margin-top: 10px;margin-bottom:0px;"></p>
+  </div>
+</div>
+
+<style>
+.cart-progress-wrapper {
+  max-width: 1600px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  margin: auto;
+}
+section.shopify-section-group-header-group.section > div > div {
+    background-color: #00514E;
+}
+.milestones {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  padding: 0 50px;
+}
+.milestone span {
+  display: block;
+  font-weight: normal;
+  color: #fff;
+  font-size: 14px;
+}
+.progress-bar-background {
+  width: calc(100% - 100px);
+  margin: 0 auto;
+  background-color: #ddd;
+  height: 30px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  padding: 6px;
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #00514e;
+  transition: width 0.4s ease;
+  border-radius: 20px;
+  position: relative;
+  background: rgb(95, 179, 196) !important;
+}
+
+.mascot {
+  position: absolute;
+  top: -10px;
+  right: -16px;
+  width: 35px;
+  height: 35px;
+  background-image: url(https://cdn.shopify.com/s/files/1/0720/9130/4152/files/FlekkfrittMascot.png?v=1753726753);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.3s ease;
+  display: block !important;
+}
+.mascot.nudge {
+  transform: translateY(-5px) rotate(-5deg);
+}
+.section.shopify-section.shopify-section-group-header-group.section.force-zindex {
+  z-index: 1 !important;
+}
+
+@keyframes peekUp {
+  0% {
+    transform: translateY(30%) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    transform: translateY(0%) rotate(-5deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(0%) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0%) rotate(5deg);
+    opacity: 1;
+  }
+}
+
+.mascot.peek {
+  animation: peekUp 1.2s ease forwards;
+}
+.milestones .milestone {
+    width: 25%;
+}
+.milestones .milestone:nth-last-child(1) {
+    width: auto;
+}
+.cart-progress-wrapper {
+    max-width: 100%;
+    background: #00514E;
+}
+
+.cartProgress {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+@media (min-width: 1024px) {
+  .cart-progress-wrapper {
+    height: 123px;
+  }
+}
+</style>
+
+<script>
+let previousQty = null;
+let previousPercent = 0;
+
+function fireConfettiFromMascot(mascotEl) {
+  if (!mascotEl) return;
+
+  const rect = mascotEl.getBoundingClientRect();
+  const x = (rect.left + rect.width / 2) / window.innerWidth;
+  const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+  confetti({
+    particleCount: 1000,
+    spread: 60,
+    startVelocity: 40,
+    origin: { x, y }
+  });
+}
+
+function updateProgressBarAndReward() {
+  fetch('/cart.js')
+    .then(res => res.json())
+    .then(cart => {
+      const totalQty = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+      const fillEl = document.getElementById('progressFill');
+      const mascotEl = document.getElementById('flekkenMascot');
+
+      // ✅ Only run confetti when qty increases (user adds product)
+      if (previousQty !== null && totalQty > previousQty) {
+        fireConfettiFromMascot(mascotEl);
+      }
+
+      // Save this qty for next run
+      previousQty = totalQty;
+
+      // ✅ Progress %
+      let percent = 0;
+      if (totalQty === 1) percent = 5;
+      if (totalQty >= 2) percent = 25;
+      if (totalQty >= 3) percent = 50;
+      if (totalQty >= 4) percent = 75;
+      if (totalQty >= 5) percent = 100;
+
+      if (fillEl) {
+        fillEl.style.width = percent + '%';
+        fillEl.style.backgroundColor = '#5FB3C4';
+      }
+
+      // ✅ Reward message
+      const msgEl = document.getElementById('reward-message');
+      const rewards = [
+        { qty: 2, reward: '10 % rabatt' },
+        { qty: 3, reward: '15 % rabatt' },
+        { qty: 4, reward: '20 % rabatt' },
+        { qty: 5, reward: '25 % rabatt' }
+      ];
+
+      if (msgEl) {
+        const next = rewards.find(r => totalQty < r.qty);
+        if (totalQty >= 5) {
+          msgEl.textContent = '🎉 Du har låst opp den beste belønningen!';
+        } else if (next) {
+          const remaining = next.qty - totalQty;
+          msgEl.textContent = `Legg til ${remaining} produkt${remaining > 1 ? 'er' : ''} til å få ${next.reward}`;
+        } else {
+          msgEl.textContent = '';
+        }
+      }
+    });
+}
+
+// Run once after DOM load
+document.addEventListener('DOMContentLoaded', updateProgressBarAndReward);
+
+// Shopify events
+document.addEventListener('shopify:section:load', updateProgressBarAndReward);
+document.addEventListener('ajaxCart.afterCartUpdate', updateProgressBarAndReward);
+
+// Poll as fallback
+setInterval(updateProgressBarAndReward, 2000);
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</{{ header_tag }}>
+
+{%- if settings.cart_type == 'notification' -%}
+  {%- render 'cart-notification',
+    color_scheme: section.settings.color_scheme,
+    desktop_menu_type: section.settings.menu_type_desktop
+  -%}
+{%- endif -%}
+
+{% javascript %}
+  class StickyHeader extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      this.header = document.querySelector('.section-header');
+      this.headerIsAlwaysSticky =
+        this.getAttribute('data-sticky-type') === 'always' ||
+        this.getAttribute('data-sticky-type') === 'reduce-logo-size';
+      this.headerBounds = {};
+
+      this.setHeaderHeight();
+
+      window.matchMedia('(max-width: 990px)').addEventListener('change', this.setHeaderHeight.bind(this));
+
+      if (this.headerIsAlwaysSticky) {
+        this.header.classList.add('shopify-section-header-sticky');
+      }
+
+      this.currentScrollTop = 0;
+      this.preventReveal = false;
+      this.predictiveSearch = this.querySelector('predictive-search');
+
+      this.onScrollHandler = this.onScroll.bind(this);
+      this.hideHeaderOnScrollUp = () => (this.preventReveal = true);
+
+      this.addEventListener('preventHeaderReveal', this.hideHeaderOnScrollUp);
+      window.addEventListener('scroll', this.onScrollHandler, false);
+
+      this.createObserver();
+    }
+
+    setHeaderHeight() {
+      document.documentElement.style.setProperty('--header-height', `${this.header.offsetHeight}px`);
+    }
+
+    disconnectedCallback() {
+      this.removeEventListener('preventHeaderReveal', this.hideHeaderOnScrollUp);
+      window.removeEventListener('scroll', this.onScrollHandler);
+    }
+
+    createObserver() {
+      let observer = new IntersectionObserver((entries, observer) => {
+        this.headerBounds = entries[0].intersectionRect;
+        observer.disconnect();
+      });
+
+      observer.observe(this.header);
+    }
+
+    onScroll() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (this.predictiveSearch && this.predictiveSearch.isOpen) return;
+
+      if (scrollTop > this.currentScrollTop && scrollTop > this.headerBounds.bottom) {
+        this.header.classList.add('scrolled-past-header');
+        if (this.preventHide) return;
+        requestAnimationFrame(this.hide.bind(this));
+      } else if (scrollTop < this.currentScrollTop && scrollTop > this.headerBounds.bottom) {
+        this.header.classList.add('scrolled-past-header');
+        if (!this.preventReveal) {
+          requestAnimationFrame(this.reveal.bind(this));
+        } else {
+          window.clearTimeout(this.isScrolling);
+
+          this.isScrolling = setTimeout(() => {
+            this.preventReveal = false;
+          }, 66);
+
+          requestAnimationFrame(this.hide.bind(this));
+        }
+      } else if (scrollTop <= this.headerBounds.top) {
+        this.header.classList.remove('scrolled-past-header');
+        requestAnimationFrame(this.reset.bind(this));
+      }
+
+      this.currentScrollTop = scrollTop;
+    }
+
+    hide() {
+      if (this.headerIsAlwaysSticky) return;
+      this.header.classList.add('shopify-section-header-hidden', 'shopify-section-header-sticky');
+      this.closeMenuDisclosure();
+      this.closeSearchModal();
+    }
+
+    reveal() {
+      if (this.headerIsAlwaysSticky) return;
+      this.header.classList.add('shopify-section-header-sticky', 'animate');
+      this.header.classList.remove('shopify-section-header-hidden');
+    }
+
+    reset() {
+      if (this.headerIsAlwaysSticky) return;
+      this.header.classList.remove('shopify-section-header-hidden', 'shopify-section-header-sticky', 'animate');
+    }
+
+    closeMenuDisclosure() {
+      this.disclosures = this.disclosures || this.header.querySelectorAll('header-menu');
+      this.disclosures.forEach((disclosure) => disclosure.close());
+    }
+
+    closeSearchModal() {
+      this.searchModal = this.searchModal || this.header.querySelector('details-modal');
+      this.searchModal.close(false);
+    }
+  }
+
+  customElements.define('sticky-header', StickyHeader);
+{% endjavascript %}
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    {% if settings.logo %}
+      "logo": {{ settings.logo | image_url: width: 500 | prepend: "https:" | json }},
+    {% endif %}
+    "sameAs": [
+      {{ settings.social_twitter_link | json }},
+      {{ settings.social_facebook_link | json }},
+      {{ settings.social_pinterest_link | json }},
+      {{ settings.social_instagram_link | json }},
+      {{ settings.social_tiktok_link | json }},
+      {{ settings.social_tumblr_link | json }},
+      {{ settings.social_snapchat_link | json }},
+      {{ settings.social_youtube_link | json }},
+      {{ settings.social_vimeo_link | json }}
+    ],
+    "url": {{ request.origin | append: page.url | json }}
+  }
+</script>
+
+{%- if request.page_type == 'index' -%}
+  {% assign potential_action_target = request.origin | append: routes.search_url | append: '?q={search_term_string}' %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {{ potential_action_target | json }},
+        "query-input": "required name=search_term_string"
+      },
+      "url": {{ request.origin | append: page.url | json }}
+    }
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "class": "section-header",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "select",
+      "id": "logo_position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "t:sections.header.settings.logo_position.options__2.label"
+        },
+        {
+          "value": "top-center",
+          "label": "t:sections.header.settings.logo_position.options__3.label"
+        },
+        {
+          "value": "middle-left",
+          "label": "t:sections.header.settings.logo_position.options__1.label"
+        },
+        {
+          "value": "middle-center",
+          "label": "t:sections.header.settings.logo_position.options__4.label"
+        }
+      ],
+      "default": "middle-left",
+      "label": "t:sections.header.settings.logo_position.label",
+      "info": "t:sections.header.settings.logo_help.content"
+    },
+    {
+      "type": "select",
+      "id": "mobile_logo_position",
+      "options": [
+        {
+          "value": "center",
+          "label": "t:sections.header.settings.mobile_logo_position.options__1.label"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.header.settings.mobile_logo_position.options__2.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.header.settings.mobile_logo_position.label"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "t:sections.header.settings.menu.label"
+    },
+    {
+      "type": "select",
+      "id": "menu_type_desktop",
+      "options": [
+        {
+          "value": "dropdown",
+          "label": "t:sections.header.settings.menu_type_desktop.options__1.label"
+        },
+        {
+          "value": "mega",
+          "label": "t:sections.header.settings.menu_type_desktop.options__2.label"
+        },
+        {
+          "value": "drawer",
+          "label": "t:sections.header.settings.menu_type_desktop.options__3.label"
+        }
+      ],
+      "default": "dropdown",
+      "label": "t:sections.header.settings.menu_type_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "sticky_header_type",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.header.settings.sticky_header_type.options__1.label"
+        },
+        {
+          "value": "on-scroll-up",
+          "label": "t:sections.header.settings.sticky_header_type.options__2.label"
+        },
+        {
+          "value": "always",
+          "label": "t:sections.header.settings.sticky_header_type.options__3.label"
+        },
+        {
+          "value": "reduce-logo-size",
+          "label": "t:sections.header.settings.sticky_header_type.options__4.label"
+        }
+      ],
+      "default": "on-scroll-up",
+      "label": "t:sections.header.settings.sticky_header_type.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_line_separator",
+      "default": true,
+      "label": "t:sections.header.settings.show_line_separator.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__1.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "menu_color_scheme",
+      "label": "t:sections.header.settings.menu_color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__utilities.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": true,
+      "label": "t:sections.header.settings.enable_country_selector.label",
+      "info": "t:sections.header.settings.enable_country_selector.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "default": true,
+      "label": "t:sections.header.settings.enable_language_selector.label",
+      "info": "t:sections.header.settings.enable_language_selector.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_customer_avatar",
+      "default": true,
+      "label": "t:sections.header.settings.enable_customer_avatar.label",
+      "info": "t:sections.header.settings.enable_customer_avatar.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.header.settings.margin_bottom.label",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 36,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 36,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 20
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+<link rel="stylesheet" href="{{ 'component-list-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+<link
+  rel="stylesheet"
+  href="{{ 'component-cart-notification.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+
+{%- if settings.predictive_search_enabled -%}
+  <link rel="stylesheet" href="{{ 'component-price.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+{%- if section.settings.menu_type_desktop == 'mega' -%}
+  <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+<style>
+  header-drawer {
+    justify-self: start;
+    margin-left: -1.2rem;
+  }
+
+  {%- if section.settings.sticky_header_type == 'reduce-logo-size' -%}
+    .scrolled-past-header .header__heading-logo-wrapper {
+      width: 75%;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.menu_type_desktop != "drawer" -%}
+    @media screen and (min-width: 990px) {
+      header-drawer {
+        display: none;
+      }
+    }
+  {%- endif -%}
+
+  .menu-drawer-container {
+    display: flex;
+  }
+
+  .list-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .list-menu--inline {
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  summary.list-menu__item {
+    padding-right: 2.7rem;
+  }
+
+  summary#HeaderMenu-info.list-menu__item {
+    {% comment %} pointer-events: none; {% endcomment %}
+  }
+
+  .list-menu__item {
+    display: flex;
+    align-items: center;
+    line-height: calc(1 + 0.3 / var(--font-body-scale));
+  }
+
+  .list-menu__item--link {
+    text-decoration: none;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+    line-height: calc(1 + 0.8 / var(--font-body-scale));
+  }
+
+  @media screen and (min-width: 750px) {
+    .list-menu__item--link {
+      padding-bottom: 0.5rem;
+      padding-top: 0.5rem;
+    }
+  }
+</style>
+
+{%- style -%}
+  .header {
+    padding: {{ section.settings.padding_top | times: 0.5 | round: 0 }}px 3rem {{ section.settings.padding_bottom | times: 0.5 | round: 0 }}px 3rem;
+  }
+
+  .section-header {
+    position: sticky; /* This is for fixing a Safari z-index issue. PR #2147 */
+    margin-bottom: {{ section.settings.margin_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-header {
+      margin-bottom: {{ section.settings.margin_bottom }}px;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .header {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<script src="{{ 'cart-notification.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  for block in section.blocks
+    if block.type == '@app'
+      assign has_app_block = true
+    endif
+  endfor
+-%}
+
+{% liquid
+  assign header_tag = 'div'
+
+  if section.settings.sticky_header_type != 'none'
+    assign header_tag = 'sticky-header'
+  endif
+%}
+
+<{{ header_tag }}
+  {% if header_tag == 'sticky-header' %}
+    data-sticky-type="{{ section.settings.sticky_header_type }}"
+  {% endif %}
+  class="header-wrapper color-{{ section.settings.color_scheme }} gradient{% if section.settings.show_line_separator %} header-wrapper--border-bottom{% endif %}"
+>
+  {%- liquid
+    assign social_links = false
+    assign localization_forms = false
+
+    if settings.social_twitter_link != blank or settings.social_facebook_link != blank or settings.social_pinterest_link != blank or settings.social_instagram_link != blank or settings.social_youtube_link != blank or settings.social_vimeo_link != blank or settings.social_tiktok_link != blank or settings.social_tumblr_link != blank or settings.social_snapchat_link != blank
+      assign social_links = true
+    endif
+
+    if localization.available_countries.size > 1 and section.settings.enable_country_selector or section.settings.enable_language_selector and localization.available_languages.size > 1
+      assign localization_forms = true
+    endif
+  -%}
+  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
+    {%- liquid
+      if section.settings.menu != blank
+        render 'header-drawer'
+      endif
+
+      if section.settings.logo_position == 'top-center' or section.settings.menu == blank
+        render 'header-search', input_id: 'Search-In-Modal-1'
+      endif
+    -%}
+
+    {%- if section.settings.logo_position != 'middle-center' -%}
+      {%- if request.page_type == 'index' -%}
+        <span class="header__heading">
+      {%- endif -%}
+      <a href="{{ routes.root_url }}" class="header__heading-link link link--text focus-inset">
+        {%- if settings.logo != blank -%}
+          <div class="header__heading-logo-wrapper">
+            {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+            {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+            {% capture sizes %}(max-width: {{ settings.logo_width | times: 2 }}px) 50vw, {{ settings.logo_width }}px{% endcapture %}
+            {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
+            {{
+              settings.logo
+              | image_url: width: 600
+              | image_tag:
+                class: 'header__heading-logo motion-reduce',
+                widths: widths,
+                height: logo_height,
+                width: settings.logo_width,
+                alt: logo_alt,
+                sizes: sizes,
+                preload: true
+            }}
+          </div>
+        {%- else -%}
+          <span class="h2">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+      {%- if request.page_type == 'index' -%}
+      </span>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- liquid
+      if section.settings.menu != blank
+        if section.settings.menu_type_desktop == 'dropdown'
+          render 'header-dropdown-menu'
+        elsif section.settings.menu_type_desktop != 'drawer'
+          render 'header-mega-menu'
+        endif
+      endif
+    %}
+
+    {%- if section.settings.logo_position == 'middle-center' -%}
+      {%- if request.page_type == 'index' -%}
+        <span class="header__heading">
+      {%- endif -%}
+      <a href="{{ routes.root_url }}" class="header__heading-link link link--text focus-inset">
+        {%- if settings.logo != blank -%}
+          <div class="header__heading-logo-wrapper">
+            {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+            {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+            {% capture sizes %}(min-width: 750px) {{ settings.logo_width }}px, 50vw{% endcapture %}
+            {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
+            {{
+              settings.logo
+              | image_url: width: 600
+              | image_tag:
+                class: 'header__heading-logo',
+                widths: widths,
+                height: logo_height,
+                width: settings.logo_width,
+                alt: logo_alt,
+                sizes: sizes,
+                preload: true
+            }}
+          </div>
+        {%- else -%}
+          <span class="h2">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+      {%- if request.page_type == 'index' -%}
+      </span>
+      {%- endif -%}
+    {%- endif -%}
+
+    <div class="header__icons{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} header__icons--localization header-localization{% endif %}">
+      {% assign total_savings = 0 %}
+
+{% for item in cart.items %}
+  {% assign item_discount = item.original_line_price | minus: item.final_line_price %}
+  {% assign total_savings = total_savings | plus: item_discount %}
+{% endfor %}
+
+
+{% comment %} {% if cart.items.size > 0 %}
+  {% assign total_savings = 0 %}
+
+  {% for item in cart.items %}
+    {% assign item_discount = item.original_line_price | minus: item.final_line_price %}
+    {% assign total_savings = total_savings | plus: item_discount %}
+  {% endfor %}
+
+  <div class="cart-savings-message">
+    Du har spart <span style="color:#00514E;">{{ total_savings | money_without_trailing_zeros }}</span>
+  </div>
+{% endif %} {% endcomment %}
+
+{% comment %} <div id="header-savings-wrapper">
+  {% if cart.items.size > 0 %}
+    {% assign total_savings = 0 %}
+    {% for item in cart.items %}
+      {% assign item_discount = item.original_line_price | minus: item.final_line_price %}
+      {% assign total_savings = total_savings | plus: item_discount %}
+    {% endfor %}
+    <div class="cart-savings-message" data-total-savings="{{ total_savings }}">
+      Du har spart <span style="color:#00514E;opacity:1">{{ total_savings | money_without_trailing_zeros }}</span>
+    </div>
+  {% else %}
+    <div class="cart-savings-message" data-total-savings="0" style="display:none;"></div>
+  {% endif %}
+</div>
+
+<script>
+(function() {
+  // 💡 Use Intl.NumberFormat for reliable formatting
+  const currencySymbol = 'kr'; // Change if needed (e.g. 'ISK', 'DKK', etc.)
+  const locale = 'is-IS'; // Icelandic locale gives "4.485 kr"
+
+  function formatMoney(cents) {
+    const amount = cents / 100;
+    // Format with local thousands separator & no decimals if .00
+    const formatted = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'ISK',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+
+    // Optional: ensure symbol spacing matches Shopify's style
+    return formatted.replace('ISK', currencySymbol).trim();
+  }
+
+  function updateSavingsMessage() {
+    fetch('/cart.js')
+      .then(res => res.json())
+      .then(cart => {
+        let totalSavings = 0;
+        cart.items.forEach(item => {
+          totalSavings += (item.original_line_price - item.final_line_price);
+        });
+
+        const formattedSavings = formatMoney(totalSavings);
+        console.log('💰 formattedSavings:', formattedSavings);
+
+        setTimeout(() => {
+          const wrapper = document.querySelector('#header-savings-wrapper');
+          if (!wrapper) return;
+
+          let savingsContainer = wrapper.querySelector('.cart-savings-message');
+          if (!savingsContainer) {
+            savingsContainer = document.createElement('div');
+            savingsContainer.classList.add('cart-savings-message');
+            wrapper.appendChild(savingsContainer);
+          }
+
+          if (totalSavings > 0 && cart.items.length > 0) {
+            savingsContainer.innerHTML = `Du har spart <span style="color:#00514E;opacity:1">${formattedSavings}</span>`;
+            savingsContainer.style.display = 'block';
+          } else {
+            savingsContainer.style.display = 'none';
+          }
+        }, 800);
+      })
+      .catch(err => console.error('Savings update error:', err));
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateSavingsMessage();
+
+    const origFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const res = await origFetch(...args);
+      if (args[0].includes('/cart/add') || args[0].includes('/cart/change') || args[0].includes('/cart/update')) {
+        setTimeout(updateSavingsMessage, 1000);
+      }
+      return res;
+    };
+
+    document.addEventListener('click', e => {
+      if (e.target.closest('[name="add"], .add-to-cart, .product-form__submit, .quick-add__submit')) {
+        setTimeout(updateSavingsMessage, 1000);
+      }
+    });
+  });
+})();
+</script> {% endcomment %}
+
+
+
+
+
+{% comment %} new code {% endcomment %}
+{% comment %} new code  {% endcomment %}
+{% if cart.items.size > 0 %}
+  {% assign total_savings = 0 %}
+
+  {% for item in cart.items %}
+    
+    {%- comment -%}
+    Shopify automatic & manual discount savings
+    {%- endcomment -%}
+    {% assign shopify_discount = item.original_line_price | minus: item.final_line_price %}
+
+    {%- comment -%}
+    Compare-at price savings ((compare_at - price) * quantity)
+    {%- endcomment -%}
+    {% assign compare_price = item.product.compare_at_price_max %}
+    {% assign base_price = item.product.price %}
+
+    {% if compare_price > base_price %}
+      {% assign compare_saving_single = compare_price | minus: base_price %}
+      {% assign compare_saving_total = compare_saving_single | times: item.quantity %}
+    {% else %}
+      {% assign compare_saving_total = 0 %}
+    {% endif %}
+
+    {%- comment -%}
+    Total savings per item
+    {%- endcomment -%}
+    {% assign total_item_saving = shopify_discount | plus: compare_saving_total %}
+
+    {%- comment -%}
+    Add item saving to the global total
+    {%- endcomment -%}
+    {% assign total_savings = total_savings | plus: total_item_saving %}
+
+  {% endfor %}
+
+  {% comment %} <div class="cart-savings-message cartSavingsMsgDrawer">
+    Du har spart <span style="color:#00514E;">{{ total_savings | money_without_trailing_zeros }}</span>
+  </div> {% endcomment %}
+
+{% endif %}
+
+
+  {% comment %} Language Popup {% endcomment %}
+
+ <!-- Trigger button (Norway flag) -->
+<button id="flag-btn" class="flag-btn">
+  <img src="https://cdn.shopify.com/s/files/1/0658/4595/2589/files/no.png?v=1758628084" alt="Norway" />
+</button>
+
+<!-- Popup -->
+<div id="flag-popup" class="flag-popup">
+  <div class="popup-content">
+    <span id="close-popup" class="close-btn">&times;</span>
+    <h3>Velg ditt land</h3>
+    <div class="flags">
+      <a href="https://flekkfritt.dk" class="flag-item">
+        <img src="https://cdn.shopify.com/s/files/1/0658/4595/2589/files/dk.png?v=1758628113" alt="Denmark" />
+        <span>Denmark</span>
+      </a>
+      <a href="https://flekkfritt.is" class="flag-item">
+        <img src="https://cdn.shopify.com/s/files/1/0658/4595/2589/files/is_aa12ab83-9e62-4dd0-a0d5-ce6af2445aec.png?v=1758628143" alt="Iceland" />
+        <span>Iceland</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+document.getElementById("flag-btn").onclick = function() {
+  document.getElementById("flag-popup").style.display = "block";
+};
+document.getElementById("close-popup").onclick = function() {
+  document.getElementById("flag-popup").style.display = "none";
+};
+window.onclick = function(event) {
+  if (event.target == document.getElementById("flag-popup")) {
+    document.getElementById("flag-popup").style.display = "none";
+  }
+};
+</script>
+
+
+
+
+{% comment %} <script>
+function updateSavingsMessage() {
+  fetch('/cart.js')
+    .then(res => res.json())
+    .then(cart => {
+      let savings = 0;
+
+      cart.items.forEach(item => {
+        savings += (item.original_line_price - item.final_line_price);
+      });
+
+      const container = document.querySelector('.cart-savings-message');
+
+      if (container) {
+        if (savings > 0) {
+          const nokSaved = (savings / 100).toFixed(2); // Convert from cents
+          container.innerHTML = `<p class="header-para small--hide">Du har spart <span style="color:#00514E;">${nokSaved}</span> kr </p>`;
+        } else {
+          container.innerHTML = ''; // Clear if no savings
+        }
+      }
+    });
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', updateSavingsMessage);
+
+// Run when cart updates via AJAX
+document.addEventListener('ajaxCart.afterCartUpdate', updateSavingsMessage);
+
+// Optional: poll every 5s as a fallback
+setInterval(updateSavingsMessage, 1000);
+</script> {% endcomment %}
+
+<div class="cart-savings-message"></div>
+
+      <!-- <p class="header-para small--hide">You have now saved <span style="color:#00514e;">XXX</span> nok</p> -->
+      <div class="desktop-localization-wrapper">
+        {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+          <localization-form class="small-hide medium-hide" data-prevent-hide>
+            {%- form 'localization', id: 'HeaderCountryForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="visually-hidden" id="HeaderCountryLabel">{{ 'localization.country_label' | t }}</h2>
+                {%- render 'country-localization', localPosition: 'HeaderCountry' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {% endif %}
+
+        {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+          <localization-form class="small-hide medium-hide" data-prevent-hide>
+            {%- form 'localization', id: 'HeaderLanguageForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="visually-hidden" id="HeaderLanguageLabel">{{ 'localization.language_label' | t }}</h2>
+                {%- render 'language-localization', localPosition: 'HeaderLanguage' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {%- endif -%}
+      </div>
+      {% render 'header-search', input_id: 'Search-In-Modal' %}
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a
+          href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+          class="header__icon header__icon--account link focus-inset{% if section.settings.menu != blank %} small-hide{% endif %}"
+          rel="nofollow"
+        >
+          {%- if section.settings.enable_customer_avatar -%}
+            <account-icon>
+              {%- if customer and customer.has_avatar? -%}
+                {{ customer | avatar }}
+              {%- else -%}
+                <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+              {%- endif -%}
+            </account-icon>
+          {%- else -%}
+            <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+          {%- endif -%}
+          <span class="visually-hidden">
+            {%- liquid
+              if customer
+                echo 'customer.account_fallback' | t
+              else
+                echo 'customer.log_in' | t
+              endif
+            -%}
+          </span>
+        </a>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            {% render block %}
+        {%- endcase -%}
+      {%- endfor -%}
+
+      <a href="{{ routes.cart_url }}" class="header__icon header__icon--cart link focus-inset" id="cart-icon-bubble">
+        {% if cart == empty %}
+          <span class="svg-wrapper">{{ 'cart-custom.svg' | inline_asset_content }}</span>
+        {% else %}
+          <span class="svg-wrapper">{{ 'cart-custom.svg' | inline_asset_content }}</span>
+        {% endif %}
+        <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+        {%- if cart != empty -%}
+          <div class="cart-count-bubble">
+
+            {%- if cart.item_count < 100 -%}
+              <span aria-hidden="true">{{ cart.item_count }}</span>
+            {%- endif -%}
+            <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+          </div>
+        {%- endif -%}
+      </a>
+    </div>
+  </header>
+
+
+  <!-- ✅ Progress Bar -->
+<div class="cart-progress-wrapper">
+  <div class="cartProgress">
+    <div class="milestones">
+      <div class="milestone">Kjøp 2<br><span>10 % rabatt</span></div>
+      <div class="milestone">Kjøp 3<br><span>15 % rabatt</span></div>
+      <div class="milestone">Kjøp 4<br><span>20 % rabatt</span></div>
+      <div class="milestone">Kjøp 5<br><span>25 % rabatt</span></div>
+    </div>
+    <div class="progress-bar-background">
+      <div class="progress-bar-fill" id="progressFill">
+        <div class="mascot" id="flekkenMascot"></div>
+        <span style="visibility: hidden;">Hello</span>
+      </div>
+    </div>
+    <p id="reward-message" style="text-align:center; font-weight: bold; color: #fff; margin-top: 10px;margin-bottom:0px;"></p>
+     <div class="cart-savings-message cartSavingsMsgDrawer cart-savings-box mobile">
+    Du har spart 
+    {% comment %} <p>{{ total_savings | money_without_trailing_zeros }}</p> {% endcomment %}
+     <p class="cart-savings-amount"></p>
+  </div>
+  </div>
+  <div class="profress-bar-wrapper">
+  <div class="new-btn-wrapper">
+    <a href="{{ routes.cart_url }}" class="header__icon--cart link focus-inset" id="cart-icon-bubbleSecond">
+        <span class="header__icon" style="position: relative;">
+          {% if cart == empty %}
+          <span class="svg-wrapper">{{ 'cart-custom.svg' | inline_asset_content }}</span>
+        {% else %}
+          <span class="svg-wrapper">{{ 'cart-custom.svg' | inline_asset_content }}</span>
+        {% endif %}
+        <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+        {%- if cart != empty -%}
+          <div class="cart-count-bubble">
+
+            {%- if cart.item_count < 100 -%}
+              <span aria-hidden="true">{{ cart.item_count }}</span>
+            {%- endif -%}
+            <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+          </div>
+        {%- endif -%}
+        </span>
+
+        <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const cartIcon = document.getElementById('cart-icon-bubbleSecond');
+
+  if (!cartIcon) return;
+
+  cartIcon.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    // Dawn cart drawer element
+    const cartDrawer = document.querySelector('cart-drawer');
+
+    if (cartDrawer) {
+      cartDrawer.open();
+    } else {
+      // fallback (should not normally happen in Dawn)
+      window.location.href = '/cart';
+    }
+  });
+});
+</script>
+
+      <div id="bundle-price-box" style="display:none;">
+  <span class="old-price"></span>
+  <span class="new-price">0.00</span>
+  {% comment %} <span class="discount-text"></span> {% endcomment %}
+</div>
+<style>
+  a#cart-icon-bubbleSecond {
+    display: flex;
+    text-decoration: none;
+        gap: 8px;
+    align-items: center;
+}
+</style>
+</a>
+
+      
+
+</div>
+<a href="/checkout" class="checkout-btn">Checkout</a>
+
+
+<script>
+function calculateBundlePrice(cart) {
+  let totalQty = 0;
+  let originalTotal = 0;
+  let newFinalPrice = 0;
+  cart.items.forEach(item => {
+    totalQty += item.quantity;
+    originalTotal += (item.original_price)*totalQty;
+    newFinalPrice += item.final_line_price
+  });
+
+
+  let discount = 0;
+  if (totalQty >= 5) discount = 30;
+  else if (totalQty === 4) discount = 20;
+  else if (totalQty === 3) discount = 15;
+  else if (totalQty === 2) discount = 10;
+
+  const box = document.getElementById('bundle-price-box');
+  if (!box) return;
+
+  if (discount > 0) {
+    const discountedTotal = originalTotal - (originalTotal * discount / 100);
+    box.style.display = 'block';
+
+    const oldPriceEl = box.querySelector('.old-price');
+    if (oldPriceEl) {
+      oldPriceEl.textContent = (originalTotal / 100).toFixed(2) + ' kr';
+    }
+
+    const newPriceEl = box.querySelector('.new-price');
+    if (newPriceEl) {
+      newPriceEl.textContent = (newFinalPrice / 100).toFixed(2) + ' kr';
+    }
+
+    const discountTextEl = box.querySelector('.discount-text');
+    if (discountTextEl) {
+      discountTextEl.textContent = `(${discount}% OFF)`;
+    }
+
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+(function () {
+  const originalFetch = window.fetch;
+
+  window.fetch = function () {
+    return originalFetch.apply(this, arguments).then(response => {
+      if (response.url.includes('/cart')) {
+        response.clone().json().then(cart => {
+          calculateBundlePrice(cart);
+          updateSavingsUI(cart);
+        }).catch(() => {});
+      }
+      return response;
+    });
+  };
+})();
+
+
+function fetchAndUpdatePrice() {
+  {% comment %} fetch('/cart.js')
+    .then(res => res.json())
+    .then(cart => calculateBundlePrice(cart)); {% endcomment %}
+}
+
+/* 🔥 AUTO update hooks */
+
+// On page load
+document.addEventListener('DOMContentLoaded', fetchAndUpdatePrice);
+
+// When product is added via AJAX
+document.addEventListener('cart:updated', fetchAndUpdatePrice);
+
+// Dawn theme (most important)
+document.addEventListener('cart:change', fetchAndUpdatePrice);
+
+// Fallback: detect any fetch to /cart
+(function() {
+  const originalFetch = window.fetch;
+  window.fetch = function() {
+    return originalFetch.apply(this, arguments).then(response => {
+      if (response.url.includes('/cart')) {
+        setTimeout(fetchAndUpdatePrice, 300);
+      }
+      return response;
+    });
+  };
+})();
+</script>
+
+
+  </div>
+  {% comment %} <div class="cart-savings-message cartSavingsMsgDrawer desktop"> Du har spart <p>{{ total_savings | money_without_trailing_zeros }}</p> </div> {% endcomment %}
+
+   <div class="cart-savings-message cartSavingsMsgDrawer cart-savings-box desktop" >
+    {% comment %} id="cart-savings-box" {% endcomment %}
+  Du har spart 
+  <p class="cart-savings-amount"></p>
+  {% comment %} <p>{{ total_savings | money_without_trailing_zeros }}</p> {% endcomment %}
+</div>
+
+<script>
+(function () {
+  const boxes = document.querySelectorAll('.cart-savings-box');
+  if (!boxes.length) return;
+
+  let lastSavings = null;
+  let running = false;
+
+  function formatMoney(cents) {
+    return (cents / 100).toFixed(2).replace('.', ',') + ' kr';
+  }
+
+  function calculateSavings(cart) {
+    let total = 0;
+
+    cart.items.forEach(item => {
+      const discount =
+        (item.original_line_price || item.final_line_price) -
+        item.final_line_price;
+
+      if (discount > 0) total += discount;
+    });
+
+    return total;
+  }
+
+  function updateCartSavings() {
+    if (running) return;
+    running = true;
+
+    fetch('/cart.js')
+      .then(r => r.json())
+      .then(cart => {
+        const savings = calculateSavings(cart);
+
+        if (savings !== lastSavings) {
+          boxes.forEach(box => {
+            const amountEl = box.querySelector('.cart-savings-amount');
+
+            if (!amountEl) return;
+
+            if (savings > 0) {
+              box.style.display = 'flex';
+              amountEl.textContent = formatMoney(savings);
+            } else {
+              box.style.display = 'block';
+              amountEl.textContent = formatMoney(0);
+            }
+          });
+
+          lastSavings = savings;
+        }
+      })
+      .finally(() => running = false);
+  }
+
+  // Initial load
+  updateCartSavings();
+
+  // Listen to cart updates
+  document.addEventListener('cart:change', updateCartSavings);
+  document.addEventListener('cart:refresh', updateCartSavings);
+})();
+</script>
+
+
+<script>
+(function () {
+  const originalFetch = window.fetch;
+
+  window.fetch = function (...args) {
+    return originalFetch.apply(this, args).then(response => {
+      try {
+        const url = args[0]?.toString() || '';
+
+        if (
+          url.includes('/cart/add') ||
+          url.includes('/cart/change') ||
+          url.includes('/cart/update')
+        ) {
+          document.dispatchEvent(new Event('cart:change'));
+        }
+      } catch (e) {}
+
+      return response;
+    });
+  };
+})();
+</script>
+
+
+
+{% comment %} <script>
+  function calculateCartSavings(cart) {
+  let totalSavings = 0;
+
+  cart.items.forEach(item => {
+    // Shopify automatic / manual discounts
+    {% comment %} console.log('item', item) {% endcomment %}
+    const shopifyDiscount =
+      (item.original_line_price || item.final_line_price) - item.final_line_price;
+
+    // Compare-at price savings
+    let compareSavingTotal = 0;
+
+    if (
+      item.product &&
+      item.product.compare_at_price_max > item.product.price
+    ) {
+      const compareSavingSingle =
+        item.product.compare_at_price_max - item.product.price;
+
+      compareSavingTotal = compareSavingSingle * item.quantity;
+    }
+
+    totalSavings += shopifyDiscount + compareSavingTotal;
+  });
+
+  return totalSavings;
+}
+function updateSavingsUI(cart) {
+  const box = document.getElementById('cart-savings-box');
+  const amountEl = document.getElementById('cart-savings-amount');
+
+  if (!box || !amountEl) return;
+
+  const savings = calculateCartSavings(cart);
+
+  if (savings > 0) {
+    box.style.display = 'flex';
+    amountEl.textContent =
+      (savings / 100).toFixed(2).replace('.', ',') + ' kr';
+  } else {
+    box.style.display = 'flex';
+    amountEl.textContent = 0 + ' kr'
+  }
+}
+
+
+
+
+(function () {
+  const savingsEl = document.getElementById('cart-savings-amount');
+  if (!savingsEl) return;
+
+  let running = false;
+
+  function formatMoney(cents) {
+    return (cents / 100).toLocaleString(undefined, {
+      style: 'currency',
+      currency: Shopify.currency.active
+    });
+  }
+
+  function updateCartSavings() {
+    if (running) return;
+    running = true;
+
+    fetch('/cart.js')
+      .then(r => r.json())
+      .then(cart => {
+        let totalSavings = 0;
+
+        cart.items.forEach(item => {
+          const itemSavings =
+            (item.original_price - item.final_price) * item.quantity;
+
+          if (itemSavings > 0) {
+            totalSavings += itemSavings;
+          }
+        });
+
+        // ✅ Always show value (even 0)
+        savingsEl.textContent = formatMoney(totalSavings);
+      })
+      .finally(() => running = false);
+  }
+
+  /* Initial load */
+  updateCartSavings();
+
+  /* 🔁 Refresh every second */
+  setInterval(updateCartSavings, 1000);
+})();
+</script> {% endcomment %}
+
+</div>
+
+<style>
+  #bundle-price-box {
+  {% comment %} margin-top: 10px; {% endcomment %}
+  font-size: 16px;
+}
+.cart-progress-wrapper .cart-savings-message.cartSavingsMsgDrawer {
+    background-color: #BA0C2F;
+    margin-left: 10px;
+    border: 1px dotted #fff;
+    border-radius: 12px;
+    padding: 20px;
+    color: #fff;
+    font-size: 16px;
+    text-align:center;
+}
+.cart-savings-message.cartSavingsMsgDrawer p {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 0px;
+}
+a.checkout-btn {
+    font-size: 20px;
+    font-weight: 700;
+    color: #00514E;
+    background-color: #fff;
+    text-decoration: none;
+    padding: 10px 45px;
+    border-radius: 57px;
+    text-transform: uppercase;
+    position: relative;
+    top: 10px;
+    font-family: 'Barlow Condensed';
+}
+#bundle-price-box .old-price {
+  text-decoration: line-through;
+  color: #fff;
+  font-weight:600;
+  font-size:13px;
+  margin-right: 8px;
+}
+
+#bundle-price-box .new-price {
+  color: #fff;
+  font-weight:600;
+  font-size:14px;
+
+  margin-right: 6px;
+}
+
+#bundle-price-box .discount-text {
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.cart-progress-wrapper {
+  max-width: 1600px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  padding:5px;
+}
+
+.new-btn-wrapper path {
+    stroke: #fff;
+}
+.new-btn-wrapper .cart-count-bubble {
+    background-color: #000 !important;
+}
+section.shopify-section-group-header-group.section > div > div {
+    background-color: #00514E;
+}
+.milestones {
+  display: flex;
+  justify-content: space-around;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  padding: 0 50px 12px 50px;
+}
+.milestone span {
+  display: block;
+  font-weight: normal;
+  color: #fff;
+  font-size: 14px;
+}
+.progress-bar-background {
+    width: calc(100% - 100px);
+    margin: 0 auto;
+    background-color: #ddd;
+    height: 12px;
+    border-radius: 20px;
+    {% comment %} overflow: hidden; {% endcomment %}
+    position: relative;
+    padding: 0px;
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #00514e;
+  transition: width 0.4s ease;
+  border-radius: 20px;
+  position: relative;
+  background: rgb(95, 179, 196) !important;
+}
+
+.mascot {
+  position: absolute;
+  top: -10px;
+  right: -16px;
+  width: 35px;
+  height: 35px;
+  background-image: url(https://cdn.shopify.com/s/files/1/0720/9130/4152/files/FlekkfrittMascot.png?v=1753726753);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.3s ease;
+  display: block !important;
+}
+.mascot.nudge {
+  transform: translateY(-5px) rotate(-5deg);
+}
+.section.shopify-section.shopify-section-group-header-group.section.force-zindex {
+  z-index: 1 !important;
+}
+
+@keyframes peekUp {
+  0% {
+    transform: translateY(30%) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    transform: translateY(0%) rotate(-5deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(0%) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0%) rotate(5deg);
+    opacity: 1;
+  }
+}
+
+.mascot.peek {
+  animation: peekUp 1.2s ease forwards;
+}
+.milestones .milestone {
+    width: 25%;
+    font-family: Barlow Condensed, sans-serif;
+    font-style: italic;
+    font-size: 14px;
+}
+p#reward-message {
+    width: 40%;
+    margin-top: 21px ! IMPORTANT;
+    margin: auto;
+    background-color: #fff;
+    border-radius: 999px;
+    color: #121212 ! IMPORTANT;
+    font-family: 'Barlow Condensed';
+    font-size: 16px;
+    font-weight: 500 !IMPORTANT;
+}
+@media screen and (max-width: 767px) {
+  p#reward-message {
+    font-size: 12px;
+  }
+}
+.milestones .milestone:nth-last-child(1) {
+    width: auto;
+}
+.cart-progress-wrapper {
+    max-width: 100%;
+    background: #00514E;
+}
+
+.cartProgress {
+    max-width: 1190px;
+    {% comment %} margin: 0 auto; {% endcomment %}
+    padding:4px;
+    width:100%;
+}
+div#bundle-price-box {
+    display: flex ! IMPORTANT;
+    flex-direction: column;
+}
+.new-btn-wrapper {
+ display: flex
+;
+    gap: 20px;
+    align-items: center;
+    border: 1px solid #fff;
+    border-radius: 59px;
+    padding: 1px 20px;
+}
+.cart-progress-wrapper {
+    display: flex;
+    justify-content: center;
+}
+.cart-savings-message.cartSavingsMsgDrawer.desktop {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+@media (min-width: 1024px) {
+  .cart-progress-wrapper {
+    height: 140px;
+  }
+}
+.cart-savings-message.cartSavingsMsgDrawer.desktop {
+    max-height: 100px;
+}
+@media screen and (min-width: 1023px) and (max-width: 1550px) {
+.cart-savings-message.cartSavingsMsgDrawer.desktop {
+    padding: 10px;
+    font-size: 12px;
+}
+.cart-savings-message.cartSavingsMsgDrawer p {
+    font-size: 14px;
+}
+}
+</style>
+
+<script>
+let previousQty = null;
+let previousPercent = 0;
+
+function fireConfettiFromMascot(mascotEl) {
+  if (!mascotEl) return;
+
+  const rect = mascotEl.getBoundingClientRect();
+  const x = (rect.left + rect.width / 2) / window.innerWidth;
+  const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+  confetti({
+    particleCount: 1000,
+    spread: 60,
+    startVelocity: 40,
+    origin: { x, y }
+  });
+}
+
+function updateProgressBarAndReward() {
+  fetch('/cart.js')
+    .then(res => res.json())
+    .then(cart => {
+      const totalQty = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+      const fillEl = document.getElementById('progressFill');
+      const mascotEl = document.getElementById('flekkenMascot');
+
+      // ✅ Only run confetti when qty increases (user adds product)
+      if (previousQty !== null && totalQty > previousQty) {
+        fireConfettiFromMascot(mascotEl);
+      }
+
+      // Save this qty for next run
+      previousQty = totalQty;
+
+      // ✅ Progress %
+      let percent = 0;
+      if (totalQty === 1) percent = 5;
+      if (totalQty >= 2) percent = 25;
+      if (totalQty >= 3) percent = 50;
+      if (totalQty >= 4) percent = 75;
+      if (totalQty >= 5) percent = 100;
+
+      if (fillEl) {
+        fillEl.style.width = percent + '%';
+        fillEl.style.backgroundColor = '#5FB3C4';
+      }
+
+      // ✅ Reward message
+      const msgEl = document.getElementById('reward-message');
+      const rewards = [
+        { qty: 2, reward: '10 % rabatt' },
+        { qty: 3, reward: '15 % rabatt' },
+        { qty: 4, reward: '20 % rabatt' },
+        { qty: 5, reward: '30 % rabatt' }
+      ];
+
+      if (msgEl) {
+        const next = rewards.find(r => totalQty < r.qty);
+        if (totalQty >= 5) {
+          msgEl.textContent = '🎉 Du har låst opp den beste belønningen!';
+        } else if (next) {
+          const remaining = next.qty - totalQty;
+          msgEl.textContent = `Legg til ${remaining} produkt${remaining > 1 ? 'er' : ''} til å få ${next.reward}`;
+        } else {
+          msgEl.textContent = '';
+        }
+      }
+    });
+}
+
+// Run once after DOM load
+document.addEventListener('DOMContentLoaded', updateProgressBarAndReward);
+
+// Shopify events
+document.addEventListener('shopify:section:load', updateProgressBarAndReward);
+document.addEventListener('ajaxCart.afterCartUpdate', updateProgressBarAndReward);
+
+// Poll as fallback
+setInterval(updateProgressBarAndReward, 2000);
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</{{ header_tag }}>
+
+{%- if settings.cart_type == 'notification' -%}
+  {%- render 'cart-notification',
+    color_scheme: section.settings.color_scheme,
+    desktop_menu_type: section.settings.menu_type_desktop
+  -%}
+{%- endif -%}
+
+{% javascript %}
+  class StickyHeader extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      this.header = document.querySelector('.section-header');
+      this.headerIsAlwaysSticky =
+        this.getAttribute('data-sticky-type') === 'always' ||
+        this.getAttribute('data-sticky-type') === 'reduce-logo-size';
+      this.headerBounds = {};
+
+      this.setHeaderHeight();
+
+      window.matchMedia('(max-width: 990px)').addEventListener('change', this.setHeaderHeight.bind(this));
+
+      if (this.headerIsAlwaysSticky) {
+        this.header.classList.add('shopify-section-header-sticky');
+      }
+
+      this.currentScrollTop = 0;
+      this.preventReveal = false;
+      this.predictiveSearch = this.querySelector('predictive-search');
+
+      this.onScrollHandler = this.onScroll.bind(this);
+      this.hideHeaderOnScrollUp = () => (this.preventReveal = true);
+
+      this.addEventListener('preventHeaderReveal', this.hideHeaderOnScrollUp);
+      window.addEventListener('scroll', this.onScrollHandler, false);
+
+      this.createObserver();
+    }
+
+    setHeaderHeight() {
+      document.documentElement.style.setProperty('--header-height', `${this.header.offsetHeight}px`);
+    }
+
+    disconnectedCallback() {
+      this.removeEventListener('preventHeaderReveal', this.hideHeaderOnScrollUp);
+      window.removeEventListener('scroll', this.onScrollHandler);
+    }
+
+    createObserver() {
+      let observer = new IntersectionObserver((entries, observer) => {
+        this.headerBounds = entries[0].intersectionRect;
+        observer.disconnect();
+      });
+
+      observer.observe(this.header);
+    }
+
+    onScroll() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (this.predictiveSearch && this.predictiveSearch.isOpen) return;
+
+      if (scrollTop > this.currentScrollTop && scrollTop > this.headerBounds.bottom) {
+        this.header.classList.add('scrolled-past-header');
+        if (this.preventHide) return;
+        requestAnimationFrame(this.hide.bind(this));
+      } else if (scrollTop < this.currentScrollTop && scrollTop > this.headerBounds.bottom) {
+        this.header.classList.add('scrolled-past-header');
+        if (!this.preventReveal) {
+          requestAnimationFrame(this.reveal.bind(this));
+        } else {
+          window.clearTimeout(this.isScrolling);
+
+          this.isScrolling = setTimeout(() => {
+            this.preventReveal = false;
+          }, 66);
+
+          requestAnimationFrame(this.hide.bind(this));
+        }
+      } else if (scrollTop <= this.headerBounds.top) {
+        this.header.classList.remove('scrolled-past-header');
+        requestAnimationFrame(this.reset.bind(this));
+      }
+
+      this.currentScrollTop = scrollTop;
+    }
+
+    hide() {
+      if (this.headerIsAlwaysSticky) return;
+      this.header.classList.add('shopify-section-header-hidden', 'shopify-section-header-sticky');
+      this.closeMenuDisclosure();
+      this.closeSearchModal();
+    }
+
+    reveal() {
+      if (this.headerIsAlwaysSticky) return;
+      this.header.classList.add('shopify-section-header-sticky', 'animate');
+      this.header.classList.remove('shopify-section-header-hidden');
+    }
+
+    reset() {
+      if (this.headerIsAlwaysSticky) return;
+      this.header.classList.remove('shopify-section-header-hidden', 'shopify-section-header-sticky', 'animate');
+    }
+
+    closeMenuDisclosure() {
+      this.disclosures = this.disclosures || this.header.querySelectorAll('header-menu');
+      this.disclosures.forEach((disclosure) => disclosure.close());
+    }
+
+    closeSearchModal() {
+      this.searchModal = this.searchModal || this.header.querySelector('details-modal');
+      this.searchModal.close(false);
+    }
+  }
+
+  customElements.define('sticky-header', StickyHeader);
+{% endjavascript %}
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    {% if settings.logo %}
+      "logo": {{ settings.logo | image_url: width: 500 | prepend: "https:" | json }},
+    {% endif %}
+    "sameAs": [
+      {{ settings.social_twitter_link | json }},
+      {{ settings.social_facebook_link | json }},
+      {{ settings.social_pinterest_link | json }},
+      {{ settings.social_instagram_link | json }},
+      {{ settings.social_tiktok_link | json }},
+      {{ settings.social_tumblr_link | json }},
+      {{ settings.social_snapchat_link | json }},
+      {{ settings.social_youtube_link | json }},
+      {{ settings.social_vimeo_link | json }}
+    ],
+    "url": {{ request.origin | append: page.url | json }}
+  }
+</script>
+
+{%- if request.page_type == 'index' -%}
+  {% assign potential_action_target = request.origin | append: routes.search_url | append: '?q={search_term_string}' %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {{ potential_action_target | json }},
+        "query-input": "required name=search_term_string"
+      },
+      "url": {{ request.origin | append: page.url | json }}
+    }
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "class": "section-header",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "select",
+      "id": "logo_position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "t:sections.header.settings.logo_position.options__2.label"
+        },
+        {
+          "value": "top-center",
+          "label": "t:sections.header.settings.logo_position.options__3.label"
+        },
+        {
+          "value": "middle-left",
+          "label": "t:sections.header.settings.logo_position.options__1.label"
+        },
+        {
+          "value": "middle-center",
+          "label": "t:sections.header.settings.logo_position.options__4.label"
+        }
+      ],
+      "default": "middle-left",
+      "label": "t:sections.header.settings.logo_position.label",
+      "info": "t:sections.header.settings.logo_help.content"
+    },
+    {
+      "type": "select",
+      "id": "mobile_logo_position",
+      "options": [
+        {
+          "value": "center",
+          "label": "t:sections.header.settings.mobile_logo_position.options__1.label"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.header.settings.mobile_logo_position.options__2.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.header.settings.mobile_logo_position.label"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "t:sections.header.settings.menu.label"
+    },
+    {
+      "type": "select",
+      "id": "menu_type_desktop",
+      "options": [
+        {
+          "value": "dropdown",
+          "label": "t:sections.header.settings.menu_type_desktop.options__1.label"
+        },
+        {
+          "value": "mega",
+          "label": "t:sections.header.settings.menu_type_desktop.options__2.label"
+        },
+        {
+          "value": "drawer",
+          "label": "t:sections.header.settings.menu_type_desktop.options__3.label"
+        }
+      ],
+      "default": "dropdown",
+      "label": "t:sections.header.settings.menu_type_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "sticky_header_type",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.header.settings.sticky_header_type.options__1.label"
+        },
+        {
+          "value": "on-scroll-up",
+          "label": "t:sections.header.settings.sticky_header_type.options__2.label"
+        },
+        {
+          "value": "always",
+          "label": "t:sections.header.settings.sticky_header_type.options__3.label"
+        },
+        {
+          "value": "reduce-logo-size",
+          "label": "t:sections.header.settings.sticky_header_type.options__4.label"
+        }
+      ],
+      "default": "on-scroll-up",
+      "label": "t:sections.header.settings.sticky_header_type.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_line_separator",
+      "default": true,
+      "label": "t:sections.header.settings.show_line_separator.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__1.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "menu_color_scheme",
+      "label": "t:sections.header.settings.menu_color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__utilities.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": true,
+      "label": "t:sections.header.settings.enable_country_selector.label",
+      "info": "t:sections.header.settings.enable_country_selector.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "default": true,
+      "label": "t:sections.header.settings.enable_language_selector.label",
+      "info": "t:sections.header.settings.enable_language_selector.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_customer_avatar",
+      "default": true,
+      "label": "t:sections.header.settings.enable_customer_avatar.label",
+      "info": "t:sections.header.settings.enable_customer_avatar.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.header.settings.margin_bottom.label",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 36,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 36,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 20
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}

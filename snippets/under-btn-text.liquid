@@ -1,0 +1,102 @@
+{% comment %} <p id="reward-message-unique"
+   style="text-align:center; font-weight: bold; color: #00514E; margin: 10px 0;">
+</p>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const rewardMessage = document.getElementById("reward-message-unique");
+
+  // Metafield values from Liquid
+  const wash1 = "{{ product.metafields.custom.wash_price_1 }}";
+  const wash2 = "{{ product.metafields.custom.wash_price_2 }}";
+  const wash3 = "{{ product.metafields.custom.wash_price_3 }}";
+  const wash4 = "{{ product.metafields.custom.wash_price_4 }}";
+  const wash5 = "{{ product.metafields.custom.wash_price_5 }}";
+
+  function updateRewardMessage() {
+    fetch("/cart.js")
+      .then((res) => res.json())
+      .then((cart) => {
+        let totalQty = cart.item_count;
+        let msg = "";
+
+        if (totalQty === 0) {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash1} per vask`;
+        } else if (totalQty === 1) {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash2} per vask`;
+        } else if (totalQty === 2) {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash3} per vask`;
+        } else {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash4} per vask`;
+        }
+        else {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash5} per vask`;
+        }
+
+        rewardMessage.innerHTML = msg;
+      })
+      .catch(err => console.error("Cart fetch failed:", err));
+  }
+
+  // Run immediately
+  updateRewardMessage();
+
+  // Refresh every 1 second
+  setInterval(updateRewardMessage, 1000);
+});
+</script> {% endcomment %}
+
+
+
+
+<p id="reward-message-unique"
+   style="text-align: center;
+    font-weight: bold;
+    color: #000;
+    margin: 10px 0;
+    font-size: 12px;
+    background-color: #ba0c2f29;
+    border-radius: 8px;
+    font-size: 12px;
+    padding: 5px;">
+</p>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const rewardMessage = document.getElementById("reward-message-unique");
+
+  // Metafield values from Liquid
+  const wash1 = "{{ product.metafields.custom.wash_price_1 }}";
+  const wash2 = "{{ product.metafields.custom.wash_price_2 }}";
+  const wash3 = "{{ product.metafields.custom.wash_price_3 }}";
+  const wash4 = "{{ product.metafields.custom.wash_price_4 }}";
+  const wash5 = "{{ product.metafields.custom.wash_price_5 }}";
+
+  function updateRewardMessage() {
+    fetch("/cart.js")
+      .then((res) => res.json())
+      .then((cart) => {
+        let totalQty = cart.item_count;
+        let msg = "";
+
+        if (totalQty === 0) {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash1} per vask`;
+        } else if (totalQty === 1) {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash2} per vask`;
+        } else if (totalQty === 2) {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash3} per vask`;
+        } else if (totalQty === 3) {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash4} per vask`;
+        } else {
+          msg = `*Ved kjøp av 5 stk - ordinær pris ${wash5} per vask`;
+        }
+
+        rewardMessage.innerHTML = msg;
+      })
+      .catch(err => console.error("Cart fetch failed:", err));
+  }
+
+  updateRewardMessage();
+  setInterval(updateRewardMessage, 1000);
+});
+</script>

@@ -1,0 +1,70 @@
+User-agent: *
+Disallow: /admin
+Disallow: /cart
+Disallow: /orders
+Disallow: /account
+Disallow: /checkout
+Disallow: /search
+Disallow: /policies/
+Disallow: /cdn/wpm/*.js
+
+
+# Filters & sort parameters
+Disallow: /*?sort_by
+Disallow: /*?filter
+
+##############
+# Major crawlers (explicit groups for clarity)
+##############
+User-agent: Googlebot
+# No Disallow here -> follows rules under User-agent: * (i.e., allowed except the Disallow above)
+
+User-agent: Googlebot-image
+# images allowed by default
+
+User-agent: bingbot
+# allowed
+
+User-agent: Slurp
+# allowed
+
+User-agent: DuckDuckBot
+# allowed
+
+User-agent: Brave
+# allowed
+
+##############
+# Google Adsbot
+##############
+User-agent: adsbot-google
+Disallow: /checkout
+Disallow: /cart
+Disallow: /orders
+Disallow: /cdn/wpm/*.js
+
+
+##############
+# Block bad crawlers
+##############
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: AhrefsSiteAudit
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Crawl-delay: 10
+
+User-agent: Nutch
+Disallow: /
+
+User-agent: Pinterest
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://flekkfritt.no/sitemap.xml
+Sitemap: https://flekkfritt.no/sitemap_products_1.xml?from=8827820966104&to=9073723539672
+Sitemap: https://flekkfritt.no/sitemap_pages_1.xml?from=114185437400&to=128715456728
+Sitemap: https://flekkfritt.no/sitemap_collections_1.xml?from=429804650712&to=458065805528
+Sitemap: https://flekkfritt.no/sitemap_blogs_1.xml

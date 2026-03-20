@@ -1,0 +1,535 @@
+{% comment %} {{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'section-related-products.css' | asset_url | stylesheet_tag }}
+
+{% if section.settings.image_shape == 'blob' %}
+  {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
+{% endif %}
+
+{%- style -%}
+.section-{{ section.id }}-padding {
+  padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+  padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+}
+@media screen and (min-width: 750px) {
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+}
+.swiper-button-next, swiper-button-prev{display:block;}
+button.quick-add__submit.button.button--full-width.button--secondary {
+    width: 100%;
+    color: #fff;
+    line-height: 28px;
+    font-weight: 600;
+    cursor: pointer;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 10px;
+    font-family: Poppins;
+    font-size: 16px;
+}
+/* small helpful overrides */
+.related-products-slider-{{ section.id }} .swiper-slide { display: flex; flex-direction: column; }
+.related-products-slider-{{ section.id }} .product-card { padding: 12px; border-radius: 10px; background: #fff; display:flex; flex-direction:column; height:100%; box-sizing:border-box; }
+.related-products-slider-{{ section.id }} .product-card .prdCardImgWrapper { text-align:center; margin-bottom:10px; }
+.related-products-slider-{{ section.id }} .product-card .product-meta { flex:1; display:flex; flex-direction:column; justify-content:space-between; }
+.related-products-slider-{{ section.id }} .quantity-wrapper { display:flex; align-items:center; gap:8px; }
+.related-products-slider-{{ section.id }} .product__quantity-input { width:60px; text-align:center; }
+.related-products-slider-{{ section.id }} .quick-add__submit { margin-top:8px; }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient greyBgColor section-{{ section.id }}-padding">
+  <div class="page-width isolate">
+    {% if section.settings.heading != blank %}
+      <h2 class="related-products__heading inline-richtext {{ section.settings.heading_size }}">
+        {{ section.settings.heading }}
+      </h2>
+    {% endif %}
+
+    {% assign collection = collections[section.settings.collection] %}
+    {% if collection and collection.products.size > 0 %}
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+      <div class="swiper related-products-slider-{{ section.id }}">
+        <div class="swiper-wrapper">
+          {% for product in collection.products limit: section.settings.products_to_show %}
+            <div class="swiper-slide">
+              <div class="product-card" data-product-id="{{ product.id }}">
+                <div class="prdCardImgWrapper">
+                  <a href="{{ product.url }}">
+                    <img src="{{ product.featured_image | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy" width="300" height="300" />
+                  </a>
+                </div>
+
+                <div class="product-meta">
+                  <div>
+                    <h3 class="related-product-title">{{ product.title }}</h3>
+
+                    {%- if product.compare_at_price > product.price -%}
+                      <p class="product-price">
+                        <span class="regular-price" style="text-decoration: line-through; color: #999;">
+                          {{ product.compare_at_price | money }}
+                        </span>
+                        <span class="sale-price" style="color: #00514E; font-weight: bold;">
+                          {{ product.price | money }}
+                        </span>
+                      </p>
+                    {%- else -%}
+                      <p class="product-price">
+                        <span class="sale-price">{{ product.price | money }}</span>
+                      </p>
+                    {%- endif -%}
+                  </div>
+
+                  <!-- Inline product form (unique ids) -->
+                  <product-form class="collectionAddCart custom-add-to-cart" data-section-id="{{ section.id }}">
+                    {%- assign form_id = 'related_product_' | append: section.id | append: '_' | append: product.id -%}
+                    {%- form 'product', product, id: form_id, class: 'form add-to-cart', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+                      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" class="product-variant-id" />
+
+                      <div class="quantity-add-container custom-related-product" style="display:flex;gap:10px;align-items:center;">
+                        <div class="quantity-wrapper custom-related" style="border:1px solid #e6e6e6;border-radius:8px;padding:4px;">
+                          <button type="button" class="quantity-btn minus" data-target="{{ form_id }}" aria-label="Decrease">−</button>
+                          <input type="text" name="quantity" value="1" min="1" class="product__quantity-input" data-target="{{ form_id }}" />
+                          <button type="button" class="quantity-btn plus" data-target="{{ form_id }}" aria-label="Increase">+</button>
+                        </div>
+
+                        <button
+                          id="{{ form_id }}-submit"
+                          type="submit"
+                          name="add"
+                          class="quick-add__submit button button--full-width button--secondary"
+                          data-target="{{ form_id }}"
+                          {% unless product.selected_or_first_available_variant.available %} disabled {% endunless %}
+                        >
+                          {%- if product.selected_or_first_available_variant.available -%} Legg i handlekurv {%- else -%} Utsolgt {%- endif -%}
+                        </button>
+                      </div>
+                    {%- endform -%}
+                  </product-form>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="swiper-button-next swiper-next-{{ section.id }}"></div>
+        <div class="swiper-button-prev swiper-prev-{{ section.id }}"></div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+      <script>
+        (function(){
+          // Wait for DOM ready
+          function onReady(fn){ if (document.readyState!='loading') fn(); else document.addEventListener('DOMContentLoaded',fn); }
+
+          onReady(function(){
+            var selector = '.related-products-slider-{{ section.id }}';
+            var sliderEl = document.querySelector(selector);
+            if (!sliderEl) return;
+
+            // Initialize Swiper - unique navigation elements
+            new Swiper(selector, {
+              loop: true,
+              spaceBetween: 20,
+              slidesPerView: 1.15,
+              navigation: {
+                nextEl: '.swiper-next-{{ section.id }}',
+                prevEl: '.swiper-prev-{{ section.id }}'
+              },
+              breakpoints: {
+                640: { slidesPerView: 2, spaceBetween: 16 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: {{ section.settings.columns_desktop | default: 4 }}, spaceBetween: 24 }
+              }
+            });
+
+            // Quantity buttons & Add-to-cart logic (per form)
+            document.querySelectorAll('.product-card').forEach(function(card){
+              var form = card.querySelector('form.add-to-cart');
+              if (!form) return;
+
+              var qtyInput = form.querySelector('input[name="quantity"]');
+              var plus = form.querySelector('.quantity-btn.plus');
+              var minus = form.querySelector('.quantity-btn.minus');
+              var submitBtn = form.querySelector('button[type="submit"]');
+
+              // sanitize initial
+              if (qtyInput) { qtyInput.value = qtyInput.value || '1'; }
+
+              if (plus) plus.addEventListener('click', function(e){
+                e.preventDefault();
+                var v = parseInt(qtyInput.value || '1',10); qtyInput.value = v + 1;
+              });
+              if (minus) minus.addEventListener('click', function(e){
+                e.preventDefault();
+                var v = parseInt(qtyInput.value || '1',10);
+                if (v > 1) qtyInput.value = v - 1;
+              });
+
+              // AJAX submit
+              form.addEventListener('submit', function(e){
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                var variantInput = form.querySelector('input[name="id"]');
+                var quantity = parseInt(qtyInput.value || '1', 10);
+                var variantId = variantInput ? variantInput.value : null;
+                if (!variantId) { alert('Produktvariant ikke funnet'); return; }
+
+                // disable UI
+                submitBtn.disabled = true;
+                var originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = 'Legger til...';
+
+                fetch('/cart/add.js', {
+                  method: 'POST',
+                  headers: {'Content-Type':'application/json'},
+                  body: JSON.stringify({ id: variantId, quantity: quantity })
+                }).then(function(res){
+                  if (!res.ok) return res.json().then(function(err){ throw err; });
+                  return res.json();
+                }).then(function(data){
+                  // success toast
+                  var toast = document.createElement('div');
+                  toast.textContent = 'Lagt i handlekurven ✅';
+                  toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 14px;border-radius:8px;background:#00514e;color:#fff;z-index:99999;';
+                  document.body.appendChild(toast);
+                  setTimeout(function(){ toast.remove(); }, 1800);
+
+                  // update cart bubble(s)
+                  fetch('/cart.js').then(r=>r.json()).then(function(cart){
+                    document.querySelectorAll('.cart-count-bubble').forEach(function(b){
+                      var visible = b.querySelector('span[aria-hidden="true"]');
+                      var hidden = b.querySelector('.visually-hidden');
+                      if (visible) visible.textContent = cart.item_count;
+                      if (hidden) hidden.textContent = cart.item_count + ' items';
+                      if (cart.item_count > 0) b.classList.remove('hidden'); else b.classList.add('hidden');
+                    });
+                  });
+                }).catch(function(err){
+                  var msg = (err && (err.description || err.message)) || 'Feil ved legging i handlekurv';
+                  alert(msg);
+                  console.error(err);
+                }).finally(function(){
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = originalText;
+                });
+              });
+            }); // end forEach product-card
+          }); // end onReady
+        })();
+      </script>
+
+    {% else %}
+      <p>No products found in the selected collection.</p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Related Products Slider",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "You may also like" },
+    { "type": "collection", "id": "collection", "label": "Select collection" },
+    { "type": "range", "id": "products_to_show", "min": 2, "max": 12, "step": 1, "default": 8, "label": "Number of products to show" },
+    { "type": "range", "id": "columns_desktop", "min": 1, "max": 6, "step": 1, "default": 4, "label": "Desktop columns (used as slidesPerView at large screens)" },
+    { "type": "select", "id": "heading_size", "label": "Heading size", "options":[ { "value":"h2","label":"Medium" },{ "value":"h1","label":"Large" } ], "default":"h2" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default":"background-1" },
+    { "type": "select", "id": "image_shape", "label":"Image shape", "options":[ { "value":"default","label":"Default" }, { "value":"blob","label":"Blob" } ], "default":"default" },
+    { "type":"range","id":"padding_top","min":0,"max":100,"step":4,"unit":"px","label":"Top padding","default":36 },
+    { "type":"range","id":"padding_bottom","min":0,"max":100,"step":4,"unit":"px","label":"Bottom padding","default":36 }
+  ],
+  "presets": [ { "name": "Related Products Slider", "category": "Products" } ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'section-related-products.css' | asset_url | stylesheet_tag }}
+
+{% if section.settings.image_shape == 'blob' %}
+  {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
+{% endif %}
+
+{%- style -%}
+.section-{{ section.id }}-padding {
+  padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+  padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+}
+.related-product-slider {
+    display: block !important;
+}
+form.form.add-to-cart {
+    background: #fff !important;
+}
+button.quick-add__submit.button.button--full-width.button--secondary {
+    font-size: 16px !important;
+    line-height: 28px !important;
+    padding: 0 !important;
+}
+@media screen and (min-width: 750px) {
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+}
+.related-products-slider-{{ section.id }} .swiper-slide { display:flex; flex-direction:column; }
+.related-products-slider-{{ section.id }} .product-card { background:#fff; border-radius:12px; box-sizing:border-box; height:100%; display:flex; flex-direction:column; justify-content:space-between; }
+.related-products-slider-{{ section.id }} .prdCardImgWrapper { text-align:center; margin-bottom:12px; }
+.related-products-slider-{{ section.id }} .product-meta h3 { font-size:16px; margin-bottom:6px; }
+{%- endstyle -%}
+
+<div class="newTemplateRealtedPrd color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="page-width isolate">
+    {% if section.settings.heading != blank %}
+      <h2 class="related-products__heading inline-richtext {{ section.settings.heading_size }}">
+        {{ section.settings.heading }}
+      </h2>
+    {% endif %}
+
+    {% assign collection = collections[section.settings.collection] %}
+    {% if collection and collection.products.size > 0 %}
+      <div class="swiper related-products-slider-{{ section.id }}">
+        <div class="swiper-wrapper">
+          {% for product in collection.products limit: section.settings.products_to_show %}
+            <div class="swiper-slide">
+              <div class="product-card">
+                <div class="prdCardImgWrapper">
+                  <a href="{{ product.url }}">
+                    <img src="{{ product.featured_image | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy" width="300" height="300" />
+                  </a>
+                </div>
+
+                <div class="product-meta">
+                  <div>
+                    <h3 class="related-product-title">{{ product.title }}</h3>
+
+                    {% comment %} {% if product.compare_at_price > product.price %}
+                      <p class="product-price">
+                        <span style="text-decoration: line-through; color: #999;">{{ product.compare_at_price | money }}</span>
+                        <span style="color:#00514E; font-weight:bold;">{{ product.price | money }}</span>
+                      </p>
+                    {% else %}
+                      <p class="product-price">{{ product.price | money }}</p>
+                    {% endif %} {% endcomment %}
+{% comment %} new code {% endcomment %}
+{% if product.compare_at_price > product.price %}
+
+  {% assign original = product.compare_at_price | divided_by: 100.0 %}
+  {% assign sale = product.price | divided_by: 100.0 %}
+  {% assign discount_percent = sale | minus: original | divided_by: original | times: -100 %}
+  {% assign discount_percent_decimal = discount_percent | round: 2 %}
+
+  <p class="product-price" style="position: relative;">
+
+    <!-- Original Compare-at price -->
+    <span style="text-decoration: line-through; color: #5FB3C4;">
+      {{
+        product.compare_at_price
+        | money_without_currency
+        | replace: '.', ','
+      }} NOK
+    </span>
+
+    <!-- Sale price -->
+    <span style="color:#00514E; font-weight:bold; margin-left:6px;">
+      {{
+        product.price
+        | money_without_currency
+        | replace: '.', ','
+      }} NOK
+    </span>
+
+    <!-- Discount percentage badge -->
+    <span style="
+      font-weight:bold;
+      margin-left:8px;
+      color: #fff;
+      position: absolute;
+      right: 0;
+      background-color: #00514E;
+      padding: 5px 10px;
+      border-radius: 10px;
+      bottom: 230px;
+    ">
+      {{ discount_percent_decimal | replace: '.', ',' }}%
+    </span>
+
+  </p>
+
+{% else %}
+
+  <p class="product-price">
+    {{
+      product.price
+      | money_without_currency
+      | replace: '.', ','
+    }} NOK
+  </p>
+
+{% endif %}
+
+
+                  </div>
+
+                  {%- assign product_form_id = 'related_product_' | append: section.id | append: '_' | append: product.id -%}
+                  <product-form class="collectionAddCart custom-add-to-cart" data-section-id="{{ section.id }}">
+                    {%- form 'product',
+                      product,
+                      id: product_form_id,
+                      class: 'form add-to-cart',
+                      novalidate: 'novalidate',
+                      data-type: 'add-to-cart-form'
+                    -%}
+                      <input
+                        type="hidden"
+                        name="id"
+                        value="{{ product.selected_or_first_available_variant.id }}"
+                        class="product-variant-id"
+                        {% unless product.selected_or_first_available_variant.available %} disabled {% endunless %}
+                      >
+
+                      <div class="quantity-add-container custom-related-product" style="display:flex;gap:15px;align-items:center;margin-bottom:15px;">
+                        <div class="quantity-wrapper custom-related">
+                          <button type="button" onclick="decreaseQty(this)" class="quantity-btn minus" style="background-color:#fff;border:none;width:32px;height:50px;font-size:25px;cursor:pointer;border-right:1px solid #00514E;">−</button>
+                          <input 
+                            type="text" 
+                            name="quantity" 
+                            value="1" 
+                            min="1" 
+                            class="product__quantity-input" 
+                            style="width:calc(100% - 56px);text-align:center;border:none;height:50px;font-size:18px;font-weight:bold;"
+                          >
+                          <button type="button" onclick="increaseQty(this)" class="quantity-btn plus" style="background-color:#fff;border:none;width:32px;height:50px;font-size:25px;cursor:pointer;border-left:1px solid #00514E;">+</button>
+                        </div>
+
+                        <button
+                          id="{{ product_form_id }}-submit"
+                          type="submit"
+                          name="add"
+                          class="quick-add__submit button button--full-width button--secondary"
+                          aria-haspopup="dialog"
+                          aria-labelledby="{{ product_form_id }}-submit title-{{ section.id }}-{{ product.id }}"
+                          aria-live="polite"
+                          data-sold-out-message="true"
+                          {% unless product.selected_or_first_available_variant.available %} disabled {% endunless %}
+                        >
+                          <span>
+                            {% if product.selected_or_first_available_variant.available %}
+                              Legg i handlekurv
+                            {% else %}
+                              Utsolgt
+                            {% endif %}
+                          </span>
+                          <span class="sold-out-message hidden">Utsolgt</span>
+                          {% render 'loading-spinner' %}
+                        </button>
+                      </div>
+                    {%- endform -%}
+                  </product-form>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="swiper-button-next swiper-next-{{ section.id }} related-product-slider"></div>
+        <div class="swiper-button-prev swiper-prev-{{ section.id }} related-product-slider"></div>
+      </div>
+
+      <!-- ✅ Working Swiper Initialization -->
+      <script>
+      (function() {
+        function loadSwiper() {
+          return new Promise(function(resolve, reject) {
+            if (window.Swiper) return resolve();
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+
+            // ensure CSS
+            if (![...document.styleSheets].some(s => s.href && s.href.includes('swiper-bundle.min.css'))) {
+              const css = document.createElement('link');
+              css.rel = 'stylesheet';
+              css.href = 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css';
+              document.head.appendChild(css);
+            }
+          });
+        }
+
+        function initRelatedSlider() {
+          const selector = ".related-products-slider-{{ section.id }}";
+          const el = document.querySelector(selector);
+          if (!el) return;
+
+          // Destroy if exists
+          if (el._swiperInstance && typeof el._swiperInstance.destroy === "function") {
+            el._swiperInstance.destroy(true, true);
+          }
+
+          el._swiperInstance = new Swiper(el, {
+            loop: true,
+            spaceBetween: 20,
+            slidesPerView: 1.15,
+            navigation: {
+              nextEl: ".swiper-next-{{ section.id }}",
+              prevEl: ".swiper-prev-{{ section.id }}"
+            },
+            breakpoints: {
+              640: { slidesPerView: 2 },
+              768: { slidesPerView: 3 },
+              1024: { slidesPerView: {{ section.settings.columns_desktop | default: 4 }} }
+            }
+          });
+
+          console.log("✅ Related Products Slider initialized for section {{ section.id }}");
+        }
+
+        // Run on load
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", () => loadSwiper().then(initRelatedSlider));
+        } else {
+          loadSwiper().then(initRelatedSlider);
+        }
+
+        // Reinit in Theme Editor
+        document.addEventListener('shopify:section:load', (e) => {
+          if (e.target && e.target.querySelector(".related-products-slider-{{ section.id }}")) {
+            loadSwiper().then(initRelatedSlider);
+          }
+        });
+      })();
+      </script>
+
+    {% else %}
+      <p>Ingen produkter fundet i den valgte kollektion.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Related Products Slider",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "You may also like" },
+    { "type": "collection", "id": "collection", "label": "Select collection" },
+    { "type": "range", "id": "products_to_show", "min": 2, "max": 12, "step": 1, "default": 8, "label": "Number of products to show" },
+    { "type": "range", "id": "columns_desktop", "min": 1, "max": 6, "step": 1, "default": 4, "label": "Desktop columns" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "select", "id": "heading_size", "label": "Heading size", "options": [ { "value": "h2", "label": "Medium" }, { "value": "h1", "label": "Large" } ], "default": "h2" },
+    { "type": "select", "id": "image_shape", "label": "Image shape", "options": [ { "value": "default", "label": "Default" }, { "value": "blob", "label": "Blob" } ], "default": "default" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Top padding", "default": 36 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Bottom padding", "default": 36 }
+  ],
+  "presets": [ { "name": "Related Products Slider", "category": "Products" } ]
+}
+{% endschema %}

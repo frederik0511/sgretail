@@ -1,0 +1,110 @@
+{{ 'testimonial-slider.css' | asset_url | stylesheet_tag }}
+
+<div class="testimonial-section">
+  <div class="container">
+    <h2 class="testimonial-section-heading">{{ section.settings.heading }}</h2>
+    <div class="testimonial-slider-wrapper">
+      <button class="slider-btn testimonialLeft">&#10094;</button>
+      <div class="testimonial-slider">
+        {% for block in section.blocks %}
+          <div class="testimonial-item">
+            <p><strong>{{ block.settings.name }}</strong></p>
+            <p>{{ block.settings.comment }}</p>
+            {% if block.settings.rating_star %}
+              <img src="{{ block.settings.rating_star | img_url: 'small' }}" alt="Rating Stars">
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <button class="slider-btn testimonialRight">&#10095;</button>
+    </div>
+  </div>
+</div>
+
+
+{% schema %}
+{
+  "name": "Testimonial Slider",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What Our Customers Say"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Person Name",
+          "default": "John Doe"
+        },
+        {
+          "type": "textarea",
+          "id": "comment",
+          "label": "Person Comment",
+          "default": "This is an amazing product! Highly recommended."
+        },
+        {
+          "type": "image_picker",
+          "id": "rating_star",
+          "label": "Rating Star Image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonial Slider",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+  console.log('Testimonial slider JS loaded');
+
+  const slider = document.querySelector('.testimonial-slider');
+  const leftBtn = document.querySelector('.testimonialLeft');
+  const rightBtn = document.querySelector('.testimonialRight');
+  const items = document.querySelectorAll('.testimonial-item');
+   
+  if (!items.length || !slider || !leftBtn || !rightBtn) {
+    console.warn('Slider elements not found.');
+    return;
+  }
+
+  const itemWidth = items[0].offsetWidth + 20;
+  let currentScroll = 0;
+  const maxScroll = (items.length - 3) * itemWidth;
+  console.log('rightBtn', rightBtn);
+  rightBtn.addEventListener('click', () => {
+    console.log('Right button clicked');
+    if (currentScroll + itemWidth <= maxScroll) {
+      currentScroll += itemWidth;
+    } else {
+      currentScroll = 0;
+    }
+    slider.scrollTo({ left: currentScroll, behavior: 'smooth' });
+  });
+
+  leftBtn.addEventListener('click', () => {
+    console.log('Left button clicked');
+    if (currentScroll - itemWidth >= 0) {
+      currentScroll -= itemWidth;
+    } else {
+      currentScroll = maxScroll;
+    }
+    slider.scrollTo({ left: currentScroll, behavior: 'smooth' });
+  });
+});
+
+
+</script>

@@ -1,0 +1,143 @@
+<style>
+    /* Make mega menu a grid with 4 columns */
+.mega-menu__list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns of equal width */
+    gap: 5px; /* space between columns */
+    padding: 0;
+    margin: 0;
+    align-items: center;
+    list-style: none;
+}
+.mega-menu .mega-menu__list--condensed {
+    display: grid;
+}
+span.mega-menu__image img {
+    width: 54px;
+}
+div#MegaMenu-Content-3 {
+    width: 1280px;
+    margin: auto;
+    padding: 20px 80px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 30px 29px 0px;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    position: absolute;
+    top: 64px;
+    z-index: 1;
+    max-height: 380px;
+}
+a.nabeel.mega-menu__link.mega-menu__link--level-2.link {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+.arrow-mega-menu {
+    width: 15px;
+}
+.mega-menu__list--condensed .mega-menu__link {
+    font-weight: 400;
+    font-size: 14px;
+}
+/* Style individual items */
+.mega-menu__list > li {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Nested UL (grandchild links) inside each column */
+.mega-menu__list li ul {
+    padding-left: 0;
+    margin-top: 10px;
+    list-style: none;
+}
+
+.mega-menu__list li ul li {
+    margin-bottom: 5px;
+}
+
+/* Optional: style images in mega menu */
+.mega-menu__image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Responsive: switch to 2 columns on tablets, 1 on mobile */
+@media (max-width: 1024px) {
+    .mega-menu__list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .mega-menu__list {
+        grid-template-columns: 1fr;
+    }
+}
+h2.mega-menu-heading {
+    font-size: 18px;
+    font-weight: 600;
+    color: #00514E;
+    font-family: "Barlow Condensed", sans-serif;
+    text-align:left;
+}
+</style>
+
+<h2 class="mega-menu-heading">Vælg andre mærker</h2>
+<ul
+    class="mega-menu__list page-width{% if link.levels == 1 %} mega-menu__list--condensed{% endif %}"
+    role="list"
+>
+    {%- for childlink in link.links -%}
+    {% assign linked_collection = childlink.object %}
+    <li>
+        <a
+        id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+        href="{{ childlink.url }}"
+        class="nabeel mega-menu__link mega-menu__link--level-2 link{% if childlink.current %} mega-menu__link--active{% endif %}"
+        {% if childlink.current %}
+            aria-current="page"
+        {% endif %}
+        >
+        {% if linked_collection and linked_collection.image %}
+            <span class="mega-menu__image">
+            <img
+                src="{{ linked_collection.image | image_url: width: 300 }}"
+                alt="{{ linked_collection.title | escape }}"
+                loading="lazy"
+            >
+            </span>
+        {% endif %}
+        
+        <span class="mega-menu__title">
+            {{ childlink.title | escape }}
+        </span>
+        <span class="arrow-title">
+            <img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/left-arrow-svgrepo-com.svg?v=1767982474" class="arrow-mega-menu">
+        </span>
+        {% comment %} {{ childlink.title | escape }} {% endcomment %}
+        </a>
+        {%- if childlink.links != blank -%}
+        <ul class="list-unstyled" role="list">
+            {%- for grandchildlink in childlink.links -%}
+            <li>
+                <a
+                id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                href="{{ grandchildlink.url }}"
+                class="mega-menu__link link{% if grandchildlink.current %} mega-menu__link--active{% endif %}"
+                {% if grandchildlink.current %}
+                    aria-current="page"
+                {% endif %}
+                >
+                {{ grandchildlink.title | escape }}
+                </a>
+            </li>
+            {%- endfor -%}
+        </ul>
+        {%- endif -%}
+    </li>
+    {%- endfor -%}
+</ul>
+

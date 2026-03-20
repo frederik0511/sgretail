@@ -1,0 +1,129 @@
+{% schema %}
+{
+  "name": "Hero Banner Box",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "text",
+      "id": "top_paragraph",
+      "label": "Top Paragraph",
+      "default": "Turn your ideas into beautiful, personalized products made just for you or someone special."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "One-of-a-Kind"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Text",
+      "default": "Pick your items now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Box Banner"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="hero-box-section" style="background-image: url({{ section.settings.background_image | image_url: width: 2000 }});">
+  <div class="hero-box-content container">
+    <div class="hero-box-text">
+
+    </div>
+    {% if section.settings.button_label %}
+      <a href="{{ section.settings.button_link }}" class="hero-button">{{ section.settings.button_label }}</a>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.hero-box-section {
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  padding: 150px 20px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-box-content {
+  background: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+
+.hero-box-text {
+  flex: 1 1 auto;
+  color: #fff;
+  padding-right: 20px;
+}
+
+.hero-subtitle {
+  font-size: 16px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.hero-heading {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+}
+
+.hero-button {
+  background-color: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.hero-button:hover {
+  background-color: #00514E;
+  color: #fff;
+  border:1px solid #00514E;
+}
+
+@media (max-width: 768px) {
+  .hero-box-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .hero-heading {
+    font-size: 28px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+}
+</style>

@@ -1,0 +1,184 @@
+{% comment %} {% schema %}
+{
+  "name": "Scrolling Announcement",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement Line",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Free shipping on orders over $50"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Upload SVG Icon (Optional)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Scrolling Announcement"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="scrolling-announcement-wrapper">
+  <div class="scrolling-track">
+    {% for i in (1..2) %}
+      {% for block in section.blocks %}
+        <div class="scrolling-item">
+          {% if block.settings.icon != blank %}
+            <img src="{{ block.settings.icon | image_url }}" alt="icon" class="scrolling-icon" />
+          {% endif %}
+          <span>{{ block.settings.text }}</span>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.scrolling-announcement-wrapper {
+  overflow: hidden;
+  width: 100%;
+  background-color: #252525;
+  /* border-top: 1px solid #e1e1e1;
+  border-bottom: 1px solid #e1e1e1; */
+  padding: 10px 0;
+}
+
+.scrolling-track {
+  display: flex;
+  width: fit-content;
+  animation: scroll-left 30s linear infinite;
+}
+
+.scrolling-item {
+  display: flex;
+  align-items: center;
+  margin-right: 50px;
+  font-size: 16px;
+  /* font-weight: bold; */
+  white-space: nowrap;
+  color: #fff;
+}
+
+.scrolling-icon {
+  /* width: 40px;
+  height: 40px; */
+  margin-right: 8px;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+</style>
+
+
+ {% endcomment %}
+
+
+ {% schema %}
+{
+  "name": "Scrolling Announcement",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement Line",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Free shipping on orders over $50"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Upload SVG Icon (Optional)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Scrolling Announcement"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="scrolling-announcement-wrapper">
+  <div class="scrolling-track">
+    {% for i in (1..4) %}
+      {% for block in section.blocks %}
+        <div class="scrolling-item">
+          {% if block.settings.icon != blank %}
+            <img src="{{ block.settings.icon | image_url }}" alt="icon" class="scrolling-icon" />
+          {% endif %}
+          <span>{{ block.settings.text }}</span>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.scrolling-announcement-wrapper {
+  overflow: hidden;
+  width: 100%;
+  background-color: #00514E;
+  /* border-top: 1px solid #e1e1e1;
+  border-bottom: 1px solid #e1e1e1; */
+  padding: 10px 0;
+}
+
+.scrolling-track {
+  display: flex;
+  width: fit-content;
+  animation: scroll-left 50s linear infinite;
+}
+
+.scrolling-item {
+  display: flex;
+  align-items: center;
+  margin-right: 50px;
+  font-size: 16px;
+  /* font-weight: bold; */
+  white-space: nowrap;
+  color: #fff;
+}
+
+.scrolling-icon {
+  /* width: 40px;
+  height: 40px; */
+  margin-right: 8px;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+</style>
+
+
+

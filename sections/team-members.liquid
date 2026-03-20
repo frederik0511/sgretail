@@ -1,0 +1,105 @@
+{% schema %}
+{
+  "name": "Team Members",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "member",
+      "name": "Team Member",
+      "settings": [
+        { "id": "image", "type": "image_picker", "label": "Profile Image" },
+        { "id": "quote", "type": "text", "label": "Quote / Message" },
+        { "id": "link_label", "type": "text", "label": "Link Text" },
+        { "id": "link_url", "type": "url", "label": "Link URL" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [{ "name": "Team Members", "category": "Custom" }]
+}
+{% endschema %}
+
+<style>
+.team-members-section {
+    padding: 40px 20px;
+    text-align: center;
+    max-width: 1600px;
+    margin: auto;
+}
+.team-member {
+  max-width: 280px;
+  margin: 0 auto;
+}
+.team-member img {
+  border-radius: 50%;
+  background: #00514E; /* teal circle behind */
+  padding: 5px;
+  display: block;
+  margin: 0 auto 15px;
+  width:60%;
+}
+.team-member .quote {
+  font-style: italic;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.team-member .member-link {
+    color: #000000;
+    text-decoration: underline;
+    font-size: 14px;
+    font-style: italic;
+}
+
+@media screen and (max-width: 768px) {
+.team-members-section .swiper-pagination.swiper-pagination-clickable.swiper-pagination-bullets.swiper-pagination-horizontal {
+    position: relative;
+    margin-top: 11% ! IMPORTANT;
+}
+.team-member .member-link {
+    font-size: 11px;
+}
+}
+
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  new Swiper(".teamSwiper", {
+    slidesPerView: 4,
+    spaceBetween: 30,
+    pagination: { el: ".swiper-pagination", clickable: true },
+    breakpoints: {
+      320: { slidesPerView: 2 },
+      768: { slidesPerView: 2 },
+      1024: { slidesPerView: 4 }
+    }
+  });
+});
+</script>
+
+
+<div class="team-members-section">
+  <div class="swiper teamSwiper">
+    <div class="swiper-wrapper">
+      {% for block in section.blocks %}
+        <div class="swiper-slide">
+          <div class="team-member">
+            {% if block.settings.image %}
+              <img src="{{ block.settings.image | img_url: '200x200' }}" alt="{{ block.settings.quote }}">
+            {% endif %}
+            <p class="quote">"{{ block.settings.quote }}"</p>
+            {% if block.settings.link_label and block.settings.link_url %}
+              <a href="{{ block.settings.link_url }}" class="member-link">
+                {{ block.settings.link_label }} →
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+</div>

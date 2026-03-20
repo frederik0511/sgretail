@@ -1,0 +1,42 @@
+{% schema %}
+{
+  "name": "QR Redirect Page",
+  "settings": []
+}
+{% endschema %}
+
+<div class="qr-redirect">
+  <p>Redirecting you to your local store...</p>
+  <p>If not redirected, choose your country below:</p>
+  <ul>
+    <li><a href="https://flekkfritt.dk">🇩🇰 Denmark</a></li>
+    <li><a href="https://flekkfritt.is">🇮🇸 Iceland</a></li>
+    <li><a href="https://flekkfritt.no">🌍 Other countries</a></li>
+  </ul>
+</div>
+
+<script>
+async function redirectUser() {
+  try {
+    let response = await fetch("https://ipapi.co/json/");
+    let data = await response.json();
+    let country = data.country_code;
+
+    switch (country) {
+      case "DK":
+        window.location.href = "https://flekkfritt.dk";
+        break;
+      case "IS":
+        window.location.href = "https://flekkfritt.is";
+        break;
+      default:
+        window.location.href = "https://flekkfritt.no";
+        break;
+    }
+  } catch (e) {
+    window.location.href = "https://flekkfritt.no";
+  }
+}
+
+redirectUser();
+</script>

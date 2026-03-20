@@ -1,0 +1,382 @@
+{{ 'component-slider.css' | asset_url | stylesheet_tag }}
+{{ 'component-slideshow.css' | asset_url | stylesheet_tag }}
+
+<style>
+  /* --- layout --- */
+  .feature-box-section {
+    padding: 50px 0;
+    box-shadow: 0px -20px 40px rgba(0,0,0,0.12) inset;
+    {% comment %} background: linear-gradient(#ffffff, #58ABBD); {% endcomment %}
+  }
+
+  .feature-box-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    justify-content: center;
+  }
+
+  .feature-box-left img {
+    width: 100%;
+    {% comment %} max-width: 450px; {% endcomment %}
+    display: block;
+  }
+.icon-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+  .feature-slider {
+    max-width: 520px;
+    width: 100%;
+    position: relative;
+  }
+
+  /* viewport hides overflow and clamps slides */
+  .fb-slider-viewport {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  /* track is flexible row of slides */
+  .fb-slides-track {
+    display: flex;
+    transition: transform 350ms ease;
+    will-change: transform;
+  }
+.fb-icon {
+    width: 170px;
+    height: auto;
+    margin-bottom: 12px;
+}
+  /* each slide takes full viewport width */
+  .fb-slide {
+    min-width: 100%;
+    box-sizing: border-box;
+    padding: 18px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .fb-card {
+    width: 100%;
+    background: #f2f6f6;
+    border: 4px solid #00514D;
+    border-radius: 14px;
+    padding: 30px;
+    text-align: center;
+    box-shadow:rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  }
+
+  .fb-icon {
+    width: 170px;
+    height: auto;
+    margin-bottom: 12px;
+  }
+.icon-heading h3 {
+    margin: 0px !important;
+    font-family: 'Barlow Condensed';
+    font-size: 32px;
+    font-weight: 600;
+    color: #00514D;
+}
+.fb-card p {
+    font-family: 'Barlow Condensed';
+    font-size: 20px;
+    color: #000;
+    font-weight: 500;
+}
+  .fb-image {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .fb-nav {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display:flex;
+    justify-content:space-between;
+    pointer-events: none; /* allow buttons only */
+  }
+h2.heading-custom-3 {
+    font-family: 'Barlow Condensed';
+    font-size: 36px;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: center;
+}
+ .fb-nav button {
+    pointer-events: auto;
+    background: #58ABBD;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 12px 15px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+}
+
+  @media(min-width: 992px){
+    /* On larger screens, keep the same single-slide viewport (keeps behavior consistent)
+       You can change styling here to show multiple cards per view if desired. */
+    .fb-slide { min-width: 100%; }
+  }
+
+  @media(max-width: 768px) {
+    .feature-box-wrapper { flex-direction: column; gap: 20px; }
+    .feature-box-left img { max-width: 320px; }
+    .fb-card {
+    width: 100%;
+    background: #f2f6f6;
+    border: 4px solid #00514D;
+    border-radius: 14px;
+    padding: 0px;
+    text-align: center;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.fb-icon {
+    width: 130px;
+    height: auto;
+    margin-bottom: 12px;
+}
+  }
+</style>
+
+<section id="feature-box-{{ section.id }}" class="feature-box-section" aria-label="Feature Slider Section">
+  <div class="page-width">
+    <h2 class="heading-custom-3">Fordelene ved FLEKKFRITT</h2>
+    <div class="feature-box-wrapper">
+
+      <!-- LEFT IMAGE -->
+      <div class="feature-box-left">
+        {% if section.settings.main_image != blank %}
+          <img src="{{ section.settings.main_image | img_url: '700x' }}" alt="">
+        {% endif %}
+      </div>
+
+      <!-- RIGHT SLIDER -->
+      <div class="feature-slider" data-fb-slider-id="{{ section.id }}">
+        <div class="fb-slider-viewport" aria-hidden="false">
+          <div class="fb-slides-track" data-track-id="{{ section.id }}">
+
+            {% for block in section.blocks %}
+            <div class="fb-slide" role="group" aria-roledescription="slide" aria-label="Slide {{ forloop.index }} of {{ section.blocks | size }}">
+              <div class="fb-card">
+                {% if block.settings.icon != blank %}
+                  <img class="fb-icon" src="{{ block.settings.icon | img_url: '100x' }}" alt="">
+                {% endif %}
+<div class="icon-heading">
+    {% if block.settings.image != blank %}
+                  <img class="fb-image" src="{{ block.settings.image | img_url: '400x' }}" alt="">
+                {% endif %}
+                         {% if block.settings.heading != blank %}
+                  <h3>{{ block.settings.heading }}</h3>
+                {% endif %}
+</div>
+       
+
+                {% if block.settings.text != blank %}
+                  <p>{{ block.settings.text }}</p>
+                {% endif %}
+
+                
+              </div>
+            </div>
+            {% endfor %}
+
+          </div>
+        </div>
+
+        <!-- nav -->
+        <div class="fb-nav" aria-hidden="false">
+          <button class="fb-prev" aria-label="Previous slide" data-fb-prev="{{ section.id }}">
+            {% comment %} {% render 'icon-caret' %} {% endcomment %} <img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Vector_2.png?v=1765213494" class="left-arrow">
+          </button>
+          <button class="fb-next" aria-label="Next slide" data-fb-next="{{ section.id }}">
+            {% comment %} {% render 'icon-caret' %} {% endcomment %} <img src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Vector_3.png?v=1765213579" class="right-arrow">
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  // Self-contained initialization per section
+  const sectionId = {{ section.id | json }};
+  const rootSelector = '[data-fb-slider-id="' + sectionId + '"]';
+  const root = document.querySelector(rootSelector);
+  if (!root) return;
+
+  const track = root.querySelector('[data-track-id="' + sectionId + '"]');
+  const slides = Array.from(track.children);
+  if (!slides.length) return;
+
+  let index = 0;
+  let startX = 0;
+  let currentTranslate = 0;
+  let isDragging = false;
+  const slideCount = slides.length;
+
+  // set track width (flex handles widths) - ensure each slide width equals viewport
+  const viewport = root.querySelector('.fb-slider-viewport');
+
+  function updateSizes() {
+    const viewportWidth = viewport.clientWidth;
+    slides.forEach(slide => slide.style.minWidth = viewportWidth + 'px');
+    goTo(index, false);
+  }
+
+  function goTo(i, animate = true) {
+    if (i < 0) i = 0;
+    if (i >= slideCount) i = slideCount - 1;
+    index = i;
+    const offset = - index * viewport.clientWidth;
+    if (!animate) track.style.transition = 'none';
+    else track.style.transition = '';
+    track.style.transform = 'translateX(' + offset + 'px)';
+    // update aria-hidden on slides for accessibility
+    slides.forEach((s, idx) => s.setAttribute('aria-hidden', idx !== index));
+  }
+
+  function next() { goTo(index + 1); }
+  function prev() { goTo(index - 1); }
+
+  // Buttons
+  const nextBtn = root.querySelector('[data-fb-next="' + sectionId + '"]');
+  const prevBtn = root.querySelector('[data-fb-prev="' + sectionId + '"]');
+  if (nextBtn) nextBtn.addEventListener('click', next);
+  if (prevBtn) prevBtn.addEventListener('click', prev);
+
+  // Keyboard
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') prev();
+  });
+
+  // Touch / swipe support
+  track.addEventListener('touchstart', touchStart, {passive:true});
+  track.addEventListener('touchmove', touchMove, {passive:false});
+  track.addEventListener('touchend', touchEnd);
+
+  // Mouse drag support (optional)
+  track.addEventListener('mousedown', mouseDown);
+  window.addEventListener('mouseup', mouseUp);
+  window.addEventListener('mousemove', mouseMove);
+
+  function touchStart(e) {
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    currentTranslate = -index * viewport.clientWidth;
+    track.style.transition = 'none';
+  }
+
+  function touchMove(e) {
+    if (!isDragging) return;
+    const x = e.touches[0].clientX;
+    const delta = x - startX;
+    track.style.transform = 'translateX(' + (currentTranslate + delta) + 'px)';
+    // prevent page scroll when horizontal swipe is detected
+    if (Math.abs(delta) > 10) e.preventDefault();
+  }
+
+  function touchEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : startX;
+    const delta = endX - startX;
+    const threshold = viewport.clientWidth * 0.2;
+    if (delta < -threshold) next();
+    else if (delta > threshold) prev();
+    else goTo(index);
+  }
+
+  // Mouse drag handlers
+  let mouseDownFlag = false;
+  function mouseDown(e) {
+    mouseDownFlag = true;
+    isDragging = true;
+    startX = e.clientX;
+    currentTranslate = -index * viewport.clientWidth;
+    track.style.transition = 'none';
+    e.preventDefault();
+  }
+  function mouseMove(e) {
+    if (!mouseDownFlag) return;
+    const delta = e.clientX - startX;
+    track.style.transform = 'translateX(' + (currentTranslate + delta) + 'px)';
+  }
+  function mouseUp(e) {
+    if (!mouseDownFlag) return;
+    mouseDownFlag = false;
+    isDragging = false;
+    const delta = e.clientX - startX;
+    const threshold = viewport.clientWidth * 0.2;
+    if (delta < -threshold) next();
+    else if (delta > threshold) prev();
+    else goTo(index);
+  }
+
+  // Resize observer to update slide widths
+  let resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(updateSizes, 100);
+  });
+
+  // init
+  updateSizes();
+  // ensure first slide aria-hidden false
+  slides.forEach((s, idx) => s.setAttribute('aria-hidden', idx !== 0));
+
+  // Optional: autoplay - uncomment below to enable
+  /*
+  let autoplayInterval = 4000;
+  let autoplayTimer = setInterval(() => {
+    if (index === slideCount - 1) goTo(0); else next();
+  }, autoplayInterval);
+
+  // pause on hover
+  root.addEventListener('mouseenter', () => clearInterval(autoplayTimer));
+  root.addEventListener('mouseleave', () => {
+    autoplayTimer = setInterval(() => {
+      if (index === slideCount - 1) goTo(0); else next();
+    }, autoplayInterval);
+  });
+  */
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Feature Box Slider",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Left Main Image"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slider Item",
+      "settings": [
+        { "type": "image_picker", "id": "icon", "label": "Icon" },
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Enter heading" },
+        { "type": "textarea", "id": "text", "label": "Paragraph", "default": "Write description here" },
+        { "type": "image_picker", "id": "image", "label": "Bottom Image (Optional)" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Feature Box Slider" }]
+}
+{% endschema %}

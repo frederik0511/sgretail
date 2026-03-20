@@ -1,0 +1,410 @@
+<div class="custom-footer-section">
+  <div class="custom-footer-inner">
+    <!-- Column 1: Logo, Text, Social -->
+    <div class="custom-footer-logo">
+      {% if section.settings.footer_logo %}
+        <img src="{{ section.settings.footer_logo | img_url: 'medium' }}" alt="Footer Logo">
+      {% endif %}
+      {% if section.settings.footer_text %}
+        <p class="footer-para">{{ section.settings.footer_text }}</p>
+      {% endif %}
+      <div class="social-icons">
+        {% if section.settings.facebook_url and section.settings.facebook_icon %}
+          <a href="{{ section.settings.facebook_url }}" target="_blank">
+            <img src="{{ section.settings.facebook_icon | img_url: 'original' }}" alt="Facebook Icon" width="24" height="24">
+          </a>
+        {% endif %}
+        {% if section.settings.instagram_url and section.settings.instagram_icon %}
+          <a href="{{ section.settings.instagram_url }}" target="_blank">
+            <img src="{{ section.settings.instagram_icon | img_url: 'original' }}" alt="Instagram Icon" width="24" height="24">
+          </a>
+        {% endif %}
+        {% if section.settings.twitter_url and section.settings.twitter_icon %}
+          <a href="{{ section.settings.twitter_url }}" target="_blank">
+            <img src="{{ section.settings.twitter_icon | img_url: 'original' }}" alt="Twitter Icon" width="24" height="24">
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Columns 2 & 3: Menus -->
+    {% for block in section.blocks %}
+      {% if block.type == 'menu_column' %}
+        <div class="custom-footer-menu">
+          {% if block.settings.menu_title %}
+            <h4>{{ block.settings.menu_title }}</h4>
+          {% endif %}
+          <ul>
+            {% for link in linklists[block.settings.menu].links %}
+              <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Column 4: Contact -->
+    <div class="custom-footer-contact">
+      {% if section.settings.contact_title %}
+        <h4>{{ section.settings.contact_title }}</h4>
+      {% endif %}
+      {% if section.settings.contact_phone and section.settings.contact_phone_icon %}
+        <p>
+          <img src="{{ section.settings.contact_phone_icon | img_url: 'original' }}" alt="Phone Icon" width="20" height="20">
+          {{ section.settings.contact_phone }}
+        </p>
+      {% endif %}
+      {% if section.settings.contact_email and section.settings.contact_email_icon %}
+        <p>
+          <img src="{{ section.settings.contact_email_icon | img_url: 'original' }}" alt="Email Icon" width="20" height="20">
+          {{ section.settings.contact_email }}
+        </p>
+      {% endif %}
+      
+      {% if section.settings.contact_address and section.settings.contact_address_icon %}
+        <p>
+          <img src="{{ section.settings.contact_address_icon | img_url: 'original' }}" alt="Address Icon" width="20" height="20">
+          {{ section.settings.contact_address }}
+        </p>
+      {% endif %}
+      <div class="klaviyo-form-VHfb5f"></div>
+      {% comment %} <div class="custom-newsletter-wrapper">
+  <div class="custom-newsletter-inner">
+    <form method="post" action="/contact#newsletter" accept-charset="UTF-8" class="custom-newsletter-form">
+      <input type="hidden" name="form_type" value="customer">
+      <input type="hidden" name="utf8" value="✓">
+      <input type="email" name="contact[email]" placeholder="Enter your email" required>
+      <button type="submit">Subscribe</button>
+    </form>
+  </div>
+</div> {% endcomment %}
+
+<style>
+/* .custom-newsletter-wrapper {
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  text-align: center;
+  border-radius: 10px;
+  margin: 30px auto;
+  max-width: 700px;
+} */
+/* .custom-newsletter-inner {
+  max-width: 500px;
+  margin: 0 auto;
+} */
+  .custom-newsletter-wrapper {
+    padding-top: 20px;
+}
+.custom-newsletter-heading {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #333;
+}
+.custom-newsletter-subheading {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #666;
+}
+.custom-newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.custom-newsletter-form input[type="email"] {
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+}
+.custom-newsletter-form button {
+  padding: 12px;
+  font-size: 16px;
+  background-color: #00514E;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.custom-newsletter-form button:hover {
+  background-color: #00514E;
+}
+@media (min-width: 600px) {
+  .custom-newsletter-form {
+    flex-direction: row;
+  }
+  .custom-newsletter-form input[type="email"] {
+    flex: 1;
+  }
+}
+</style>
+
+    </div>
+  </div>
+  <div class="footer-bottom-wrapper">
+  <div class="copyright-wrapper">
+  <p class="copyright">Copyright © 2025, Flekk Fritt</p>
+  </div>
+    <div class="payment-icon-wrapper">
+  <img class="payment-icons" src="https://cdn.shopify.com/s/files/1/0720/9130/4152/files/group_30_1_copy.png?" />
+  </div>
+    <div class="payment-icon-wrapper">
+      <span class="link-footer-copyright"><a href="https://foecon.dk/?utm_source=flekkfritt&amp;utm_medium=referral&amp;utm_campaign=website">Webshop by foecon.dk</a></span>
+  <!-- <span class="link-footer-copyright add"><a href="#">Privacy Policy</a></span>
+  <span class="link-footer-copyright"><a href="#">Terms & Condition</a></span> -->
+      
+  </div>
+    </div>
+</div>
+
+{% schema %}
+{
+  "name": "Custom Footer",
+  "tag": "section",
+  "class": "custom-footer-section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "footer_logo",
+      "label": "Footer Logo"
+    },
+    {
+      "type": "textarea",
+      "id": "footer_text",
+      "label": "Footer Text"
+    },
+    {
+      "type": "header",
+      "content": "Social Media Icons & Links"
+    },
+    {
+      "type": "image_picker",
+      "id": "facebook_icon",
+      "label": "Facebook Icon"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "instagram_icon",
+      "label": "Instagram Icon"
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "twitter_icon",
+      "label": "Twitter Icon"
+    },
+    {
+      "type": "url",
+      "id": "twitter_url",
+      "label": "Twitter URL"
+    },
+    {
+      "type": "header",
+      "content": "Contact Details"
+    },
+    {
+      "type": "text",
+      "id": "contact_title",
+      "label": "Contact Section Title",
+      "default": "Contact Us"
+    },
+    {
+      "type": "image_picker",
+      "id": "contact_email_icon",
+      "label": "Email Icon"
+    },
+    {
+      "type": "text",
+      "id": "contact_email",
+      "label": "Email"
+    },
+    {
+      "type": "image_picker",
+      "id": "contact_phone_icon",
+      "label": "Phone Icon"
+    },
+    {
+      "type": "text",
+      "id": "contact_phone",
+      "label": "Phone"
+    },
+    {
+      "type": "image_picker",
+      "id": "contact_address_icon",
+      "label": "Address Icon"
+    },
+    {
+      "type": "text",
+      "id": "contact_address",
+      "label": "Address"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu_column",
+      "name": "Menu Column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "menu_title",
+          "label": "Menu Title"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 2,
+  "presets": [
+    {
+      "name": "Custom Footer",
+      "category": "Footer"
+    }
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+.custom-footer-section {
+  background-color: #F5F5F5;
+  padding: 10px 20px;
+}
+
+.custom-footer-menu {
+    padding-left: 25%;
+}
+.custom-footer-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #00514E;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+.custom-footer-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+p.footer-para {
+    margin: 0 0 20px 0;
+}
+.custom-footer-logo img {
+  max-width: 175px;
+  height: auto;
+}
+p.footer-para {
+    font-size: 13px;
+}
+.social-icons a img {
+  margin-right: 10px;
+  width: 40px;
+  height: 40px;
+}
+
+.custom-footer-menu h4 {
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size:14px;
+}
+
+.custom-footer-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* .custom-footer-menu ul li {
+  margin-bottom: 6px;
+} */
+
+.custom-footer-contact h4 {
+font-weight: 600;
+  margin-bottom: 10px;
+  font-size:14px;
+}
+.custom-footer-menu a {
+    font-size: 13px;
+    color: #000;
+    text-decoration: none;
+    line-height: 30px;
+}
+.custom-footer-contact p {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #000;
+}
+
+.custom-footer-contact img {
+  width: 20px;
+  height: 20px;
+}
+  p.copyright {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #121212bf;
+        font-size: 13px;
+    font-weight: 400;
+}
+  @media only screen and (max-width: 600px) {
+ .custom-footer-inner {
+    grid-template-columns: repeat(1, 1fr);
+    padding-left: 0px;
+    padding-right: 0px;
+ }
+    .custom-footer-menu {
+    padding-left: 2%;
+}
+    .footer-bottom-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+}
+  .footer-bottom-wrapper {
+    display: flex
+;
+    gap: 11%;
+    justify-content: space-around;
+    align-items: center;
+    padding-top: 14px;
+    max-width: 1600px;
+    margin: auto;
+}
+  .payment-icon-wrapper {
+    text-align: center;
+}
+  img.payment-icons {
+    width: 80%;
+}
+  span.link-footer-copyright a {
+    color: #121212bf;
+    text-decoration: none;
+    font-weight: 400;
+    font-size:13px;
+}
+  span.link-footer-copyright.add:after {
+    content: "|";
+    margin-left: 5px;
+    margin-right: 5px;
+}
+{% endstylesheet %}

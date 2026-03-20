@@ -1,0 +1,102 @@
+{% comment %}
+  Infinite Logo Carousel Snippet
+{% endcomment %}
+
+<div class="logo-carousel-snippet">
+    
+      <h2 class="related-products__heading inline-richtext">
+        Kjente merker
+      </h2>
+ 
+  <div class="logo-carousel-track">
+    <div class="logo-carousel-inner">
+      {% assign logos = 
+        "https://cdn.shopify.com/s/files/1/0720/9130/4152/files/png-clipart-fairy-laundry-detergent-biological-detergent-washing-fairy-text-logo-Picsart-BackgroundRemover.png?v=1762792730,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/zoflora-logo-green-removebg-preview.png?v=1762792598,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/duzzit-removebg-preview.png?v=1762792597,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/200-2006820_clip-art-febreze-logo-clipart-think-tv-hd-removebg-preview.png?v=1762792594,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/aa87yw37c-removebg-preview.png?v=1762792593,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/bloo-logo-removebg-preview.png?v=1762792589,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/duzzit-removebg-preview_1.png?v=1762792588,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/dylon-laundry-logo-png-removebg-preview.png?v=1762792585,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/images-removebg-preview.png?v=1762792583,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/jWwVcdJS_400x400-removebg-preview.png?v=1762792582,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/kisspng-air-wick-air-fresheners-reckitt-benckiser-aerosol-air-wick-5b258e09859719.5861320315291878495472-removebg-preview.png?v=1762792581,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/New_Fabulosa_Logo_2021_-_Pantone_Gold-removebg-preview.png?v=1762792577,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Surf-logo-removebg-preview.png?v=1762792576,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/swirl-brand-logo-1-removebg-preview.png?v=1762792576,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Where-to-Buy-Crocc-Odour-Fridge-Fresh__1_-removebg-preview.png?v=1762792575,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/zoflora-logo-green-removebg-preview_1.png?v=1762792574,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/stardrops_landing-page_v1-0-06.png?v=1762791940,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Neutradol.svg?v=1762791913,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/logo.svg?v=1762791873,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Lenor-Logo.png?v=1762791860,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/elbow-grease-logo_2x_4654b411-094e-42f2-8b05-82584c5d111a.png?v=1762791818,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/dr-beckmann-logo.png?v=1762791792,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Domestos_logo.png?v=1762791777,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/crystale.svg?v=1762791753,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/Ariel_Logo.png?v=1762791721,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/250450-424047331.png?v=1762791672,
+        https://cdn.shopify.com/s/files/1/0720/9130/4152/files/1001-logo-in-petal-shape.png?v=1762791645"
+      | split: "," %}
+
+      {% for logo in logos %}
+        <div class="logo-item">
+          <img src="{{ logo | strip }}" alt="Brand logo">
+        </div>
+      {% endfor %}
+
+      {% for logo in logos %}
+        <div class="logo-item">
+          <img src="{{ logo | strip }}" alt="Brand logo">
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.logo-carousel-snippet {
+  overflow: hidden;
+  padding: 30px 0;
+  background: #fff;
+}
+
+.logo-carousel-track {
+  display: flex;
+}
+
+.logo-carousel-inner {
+  display: flex;
+  animation: scroll-marquee 40s linear infinite;
+}
+
+.logo-item {
+  flex: 0 0 auto;
+  margin: 0 40px;
+}
+
+.logo-item img {
+  max-height: 60px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+h2.related-products__heading.inline-richtext {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 700;
+}
+.logo-item img:hover {
+  transform: scale(1.1);
+}
+
+@keyframes scroll-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+  .logo-item { margin: 0 20px; }
+  .logo-item img { max-height: 40px; }
+}
+</style>
